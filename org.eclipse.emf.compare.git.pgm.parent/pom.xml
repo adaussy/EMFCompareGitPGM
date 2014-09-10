@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.emf.compare.git.pgm</groupId>
+	<artifactId>org.eclipse.emf.compare.git.pgm.parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<parent-version>1.0.0-SNAPSHOT</parent-version>
+		<tycho-version>0.21.0</tycho-version>
+		<tycho-extras-version>0.21.0</tycho-extras-version>
+		<maven-surefire-version>2.17</maven-surefire-version>
+<!-- 		<jdtVersion>3.10.0.v20140604-1726</jdtVersion> -->
+<!-- 		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven> -->
+<!-- 		<jdtAptVersion>1.1.0.v20140509-1235</jdtAptVersion> -->
+<!-- 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven> -->
+	</properties>
+	<modules>
+		<module>../plugins/org.eclipse.emf.compare.git.pgm.app</module>
+		<module>../plugins/org.eclipse.emf.compare.git.pgm.tests</module>
+		<module>../packaging/org.eclipse.emf.compare.git.pgm.product</module>
+		<module>../packaging/org.eclipse.emf.compare.git.pgm.app.feature</module>
+		<module>../packaging/org.eclipse.emf.compare.git.pgm.app.update</module>
+	</modules>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+<!-- 	<dependencies> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.eclipse.tycho</groupId> -->
+<!-- 			<artifactId>org.eclipse.jdt.core</artifactId> -->
+<!-- 			<version>${jdtVersionMaven}</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.eclipse.tycho</groupId> -->
+<!-- 			<artifactId>org.eclipse.jdt.compiler.apt</artifactId> -->
+<!-- 			<version>${jdtAptVersionMaven}</version> -->
+<!-- 		</dependency> -->
+<!-- 	</dependencies> -->
+
+	<repositories>
+		<repository>
+			<id>eclipse-luna</id>
+			<url>http://download.eclipse.org/releases/luna</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>org.eclipse.emf.compare.git.pgm</groupId>
+							<artifactId>org.eclipse.emf.compare.git.pgm.parent</artifactId>
+							<version>${parent-version}</version>
+							<classifier>targetPlatforms/org.eclipse.emf.compare.git.pgm</classifier>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

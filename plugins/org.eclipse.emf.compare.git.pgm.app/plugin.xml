@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="emf.compare.git.launcherApp"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.emf.compare.git.pgm.app.LogicalApp">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="emf.compare.git.logicaldiff"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.emf.compare.git.pgm.app.internal.app.LogicalDiffApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="emf.compare.git.logicalmerge"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.emf.compare.git.pgm.app.internal.app.LogicalMergeApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="org.eclipse.emf.compare.git.pgm.product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="emf.compare.git.launcherApp"
+            name="EMF Compare Git PGM">
+      </product>
+   </extension>
+</plugin>

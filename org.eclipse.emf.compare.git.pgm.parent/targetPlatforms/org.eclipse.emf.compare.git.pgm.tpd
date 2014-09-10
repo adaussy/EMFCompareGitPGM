@@ -1,0 +1,49 @@
+target "EMF Compare logical merge target platformn"
+
+with source requirements
+
+location "http://download.eclipse.org/releases/luna" {
+	org.eclipse.platform.sdk lazy
+	org.eclipse.emf.sdk.feature.group lazy
+	org.eclipse.emf.transaction.sdk.feature.group lazy
+	org.eclipse.uml2.feature.group lazy
+	org.eclipse.gmf.runtime.notation.sdk.feature.group lazy
+	org.eclipse.emf.ecoretools.feature.group lazy
+	org.eclipse.papyrus.sdk.feature.feature.group lazy
+	org.eclipse.core.net lazy
+	}
+
+location "https://hudson.eclipse.org/oomph/job/integration/lastSuccessfulBuild/artifact/updates/" {
+	org.eclipse.oomph.util lazy
+	org.eclipse.oomph.base.edit lazy
+	org.eclipse.oomph.setup lazy
+	org.eclipse.oomph.setup.core lazy
+	org.eclipse.oomph.setup.projects lazy
+	org.eclipse.oomph.setup.p2 lazy
+
+}
+location "http://download.eclipse.org/modeling/emf/compare/updates/nightly/latest/" {
+	org.eclipse.emf.compare.ide.ui.source.feature.group lazy
+	org.eclipse.emf.compare.uml2.feature.group lazy
+	org.eclipse.emf.compare.diagram.gmf.feature.group lazy
+	org.eclipse.emf.compare.diagram.papyrus.feature.group lazy
+}
+
+location "http://ericssonegit.ci.obeo.fr:8180/jenkins/job/egit-logical/lastSuccessfulBuild/artifact/org.eclipse.egit.repository/target/repository/" {
+	org.eclipse.egit.feature.group lazy
+}
+
+location "http://download.eclipse.org/cbi/updates/license" {
+	org.eclipse.license.feature.group [1.0.1,1.1.0)
+}
+
+location "http://download.eclipse.org/tools/orbit/downloads/drops/R20140525021250/repository/" {
+	com.google.guava [11.0.2,11.0.3)
+	org.junit [4,5)
+	
+	/* Egit/Jgit */
+	javaewah
+	org.apache.commons.compress
+	org.kohsuke.args4j
+	/* Egit/Jgit */
+}

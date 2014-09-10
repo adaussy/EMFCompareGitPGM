@@ -1,0 +1,1 @@
+In order to use any script you need to check the variable EMF_COMPARE_GIT_PGM_APP_PATH is correctly set (see tests/logicalcommands_tests.sh for an example).
