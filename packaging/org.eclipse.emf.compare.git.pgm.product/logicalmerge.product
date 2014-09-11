@@ -88,7 +88,6 @@
       <plugin id="org.eclipse.emf.compare"/>
       <plugin id="org.eclipse.emf.compare.edit"/>
       <plugin id="org.eclipse.emf.compare.git.pgm.app"/>
-      <plugin id="org.eclipse.emf.compare.git.pgm.app.tests" fragment="true"/>
       <plugin id="org.eclipse.emf.compare.ide"/>
       <plugin id="org.eclipse.emf.compare.ide.ui"/>
       <plugin id="org.eclipse.emf.compare.rcp"/>
