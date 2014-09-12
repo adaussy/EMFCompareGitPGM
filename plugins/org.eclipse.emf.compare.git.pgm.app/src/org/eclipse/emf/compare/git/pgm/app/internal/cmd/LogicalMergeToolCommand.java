@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DiesOn;
@@ -64,7 +64,7 @@ public class LogicalMergeToolCommand extends AbstractLogicalCommand {
 		OS os = performer.getOS();
 
 		if (!os.isCurrent()) {
-			return ReturnCode.ERROR;
+			return Returns.ERROR.code();
 		}
 
 		try {
@@ -113,6 +113,6 @@ public class LogicalMergeToolCommand extends AbstractLogicalCommand {
 			throw new DiesOn(DeathType.FATAL).duedTo(e).ready();
 		}
 
-		return ReturnCode.convert(returnValue);
+		return Returns.valueOf(returnValue).code();
 	}
 }

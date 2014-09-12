@@ -11,6 +11,7 @@
 package org.eclipse.emf.compare.git.pgm.app.util;
 
 import static org.eclipse.emf.compare.git.pgm.app.util.StringUtil.EOL;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.base.Preconditions;
@@ -132,6 +133,7 @@ public class ProjectBuilder {
 		content.append("</projectDescription>").append(EOL);
 		writer.print(content.toString());
 		writer.close();
+		assertFalse(writer.checkError());
 		return project;
 	}
 
@@ -142,6 +144,7 @@ public class ProjectBuilder {
 		PrintWriter writer = new PrintWriter(result, "UTF-8"); //$NON-NLS-1$
 		writer.println(content);
 		writer.close();
+		assertFalse(writer.checkError());
 		return result;
 	}
 

@@ -26,8 +26,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.AbstractApplicationTest;
-import org.eclipse.emf.compare.git.pgm.app.OomphUserModelBuilder;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
+import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.app.util.ProjectBuilder;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -35,7 +35,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.oomph.resources.ResourcesUtil;
 import org.junit.Test;
 
 /**
@@ -43,12 +42,6 @@ import org.junit.Test;
  */
 @SuppressWarnings("nls")
 public class LogicalMergeApplicationTest extends AbstractApplicationTest {
-
-	@Override
-	public void before() throws Exception {
-		super.before();
-		ResourcesUtil.clearWorkspace();
-	}
 
 	/**
 	 * <h3>Test the logical merge application on the current branch</h3>
@@ -95,7 +88,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertTrue(getGit().status().call().isClean());
 		assertEquals(getGit().getRepository().resolve("HEAD").getName(), rev.getId().getName());
 		assertOutputMessageEnd("Already up to date." + EOL + EOL);
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertEquals(Returns.COMPLETE.code(), result);
 
 	}
 
@@ -142,7 +135,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		// Creates Oomph model
 		File userSetupFile = createPapyrusUserOomphModel(project);
 
-		// Mocks that the commands is lauched from the git repository folder.
+		// Mocks that the commands is launched from the git repository folder.
 		setCmdLocation(getRepositoryPath().toString());
 
 		// Sets args
@@ -157,7 +150,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		printErr();
 
 		assertOutputMessageEnd("Already up to date." + EOL + EOL);
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertEquals(Returns.COMPLETE.code(), result);
 
 		assertTrue(getGit().status().call().isClean());
 		assertEquals(getGit().getRepository().resolve("HEAD").getName(), commitB.getId().getName());
@@ -193,9 +186,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 						"org.eclipse.emf.compare.rcp.ui.feature.group",
 						"org.eclipse.emf.compare.uml2.feature.group",
 						"org.eclipse.emf.compare.diagram.gmf.feature.group",
-						"org.eclipse.emf.compare.diagram.papyrus.feature.group",
-						"http://download.eclipse.org/releases/luna/201406250900",
-						"http://download.eclipse.org/modeling/emf/compare/updates/nightly/latest/") //
+						"org.eclipse.emf.compare.diagram.papyrus.feature.group") //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 		return userSetupFile;
 	}
@@ -205,22 +196,30 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 * this test try to load the resource.
 	 * 
 	 * @param paths
+	 * @throws IOException
+	 * @throws AssertionError
 	 */
-	private void assertNoConflitMarker(Path... paths) {
+	private void assertNoConflitMarker(Path... paths) throws AssertionError, IOException {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		for (Path p : paths) {
-			Resource resource = resourceSet.getResource(URI.createFileURI(p.toString()), true);
-			assertNotNull(resource);
+			try {
+				Resource resource = resourceSet.getResource(URI.createFileURI(p.toString()), true);
+				assertNotNull(resource);
+			} catch (Exception e) {
+				throw new AssertionError("Error wile parsing resource " + p.toString() + EOL
+						+ getConfigurationMessage(), e);
+			}
 		}
 	}
 
-	private void assertExistInResource(Path resourcePath, String... fragments) {
+	private void assertExistInResource(Path resourcePath, String... fragments) throws IOException {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		Resource resource = resourceSet.getResource(URI.createFileURI(resourcePath.toString()), true);
 		assertNotNull(resource);
 		for (String fragment : fragments) {
 			EObject eObject = resource.getEObject(fragment);
-			assertNotNull(eObject);
+			assertNotNull("Element with framgment " + fragment + " does not exist" + EOL
+					+ getConfigurationMessage(), eObject);
 		}
 	}
 
@@ -258,7 +257,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	@Test
 	public void testMER001() throws Exception {
 
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER001");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/conflicts/MER001/branch_a/model.di")//
 				.addContentToCopy("data/conflicts/MER001/branch_a/model.uml") //
@@ -316,19 +315,19 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		assertEquals(1, projectInWorkspace.length);
 
-		assertEquals(ReturnCode.ABORTED, result);
+		assertEquals(Returns.ABORTED.code(), result);
 
 		StringBuilder expectedOut = new StringBuilder();
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER001/model.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER001/model.uml").append(EOL);
 		expectedOut.append("Automatic merge failed; fix conflicts and then commit the result.").append(EOL)
 				.append(EOL);
 		assertOutputMessageEnd(expectedOut.toString());
 
 		assertNoConflitMarker(projectPath.resolve("model.uml"), projectPath.resolve("model.notation"));
 
-		Set<String> expectedConflictingFilePath = Sets.newHashSet("PapyrusModel/model.uml",
-				"PapyrusModel/model.notation");
+		Set<String> expectedConflictingFilePath = Sets
+				.newHashSet("MER001/model.uml", "MER001/model.notation");
 		assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
 	}
 
@@ -359,7 +358,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 */
 	@Test
 	public void testMER002() throws Exception {
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER002");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/conflicts/MER002/branch_a/model.di")//
 				.addContentToCopy("data/conflicts/MER002/branch_a/model.uml") //
@@ -430,19 +429,19 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		assertEquals(1, projectInWorkspace.length);
 
-		assertEquals(ReturnCode.ABORTED, result);
+		assertEquals(Returns.ABORTED.code(), result);
 
 		StringBuilder expectedOut = new StringBuilder();
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER002/model.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER002/model.uml").append(EOL);
 		expectedOut.append("Automatic merge failed; fix conflicts and then commit the result.").append(EOL)
 				.append(EOL);
 		assertOutputMessageEnd(expectedOut.toString());
 
 		assertNoConflitMarker(projectPath.resolve("model.uml"), projectPath.resolve("model.notation"));
 
-		Set<String> expectedConflictingFilePath = Sets.newHashSet("PapyrusModel/model.uml",
-				"PapyrusModel/model.notation");
+		Set<String> expectedConflictingFilePath = Sets
+				.newHashSet("MER002/model.uml", "MER002/model.notation");
 		assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
 
 	}
@@ -468,7 +467,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 */
 	@Test
 	public void testMER003() throws Exception {
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER003");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
 				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
@@ -527,7 +526,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertEquals(1, projectInWorkspace.length);
 
 		assertOutputMessageEnd("Merge made by 'recursive' strategy." + EOL + EOL);
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertEquals(Returns.COMPLETE.code(), result);
 
 		final String class1URIFragment = "_bB2fYC3HEeSN_5D5iyrZGQ";
 		final String class2URIFragment = "_hfIr4C3HEeSN_5D5iyrZGQ";
@@ -559,7 +558,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 */
 	@Test
 	public void testMER004() throws Exception {
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER004");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/automerging/MER004/branch_a/model.di")//
 				.addContentToCopy("data/automerging/MER004/branch_a/model.uml") //
@@ -627,7 +626,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertEquals(1, projectInWorkspace.length);
 
 		assertOutputMessageEnd("Merge made by 'recursive' strategy." + EOL + EOL);
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertEquals(Returns.COMPLETE.code(), result);
 
 		final String class1URIFragment = "_adib0C9QEeShUolneTgohg";
 		final String class3URIFragment = "_lztC0C9QEeShUolneTgohg";
@@ -669,7 +668,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 */
 	@Test
 	public void testMER005() throws Exception {
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER005");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/conflicts/MER005/branch_a/model.di")//
 				.addContentToCopy("data/conflicts/MER005/branch_a/model.uml") //
@@ -740,19 +739,19 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertNoConflitMarker(projectPath.resolve("model.uml"), projectPath.resolve("model.notation"),
 				projectPath.resolve("model2.uml"), projectPath.resolve("model2.notation"));
 
-		assertEquals(ReturnCode.ABORTED, result);
+		assertEquals(Returns.ABORTED.code(), result);
 
 		StringBuilder expectedOut = new StringBuilder();
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.uml").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model2.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model2.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER005/model.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER005/model.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER005/model2.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER005/model2.uml").append(EOL);
 		expectedOut.append("Automatic merge failed; fix conflicts and then commit the result.").append(EOL)
 				.append(EOL);
 		assertOutputMessageEnd(expectedOut.toString());
 
-		Set<String> expectedConflictingFilePath = Sets.newHashSet("PapyrusModel/model.uml",
-				"PapyrusModel/model.notation", "PapyrusModel/model2.uml", "PapyrusModel/model2.notation");
+		Set<String> expectedConflictingFilePath = Sets.newHashSet("MER005/model.uml",
+				"MER005/model.notation", "MER005/model2.uml", "MER005/model2.notation");
 		assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
 
 	}
@@ -784,7 +783,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 */
 	@Test
 	public void testMER006() throws Exception {
-		Path projectPath = getRepositoryPath().resolve("PapyrusModel");
+		Path projectPath = getRepositoryPath().resolve("MER006");
 		File project = new ProjectBuilder(this) //
 				.addContentToCopy("data/conflicts/MER006/branch_a/model.di")//
 				.addContentToCopy("data/conflicts/MER006/branch_a/model.uml") //
@@ -856,7 +855,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 
 		// Sets args
 		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
-				branchC);
+				branchD);
 
 		// Runs command
 		Object result = getApp().start(getContext());
@@ -871,19 +870,19 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertNoConflitMarker(projectPath.resolve("model.uml"), projectPath.resolve("model.notation"),
 				projectPath.resolve("model2.uml"), projectPath.resolve("model2.notation"));
 
-		assertEquals(ReturnCode.ABORTED, result);
+		assertEquals(Returns.ABORTED.code(), result);
 
 		StringBuilder expectedOut = new StringBuilder();
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model.uml").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model2.notation").append(EOL);
-		expectedOut.append("Auto-merging failed in ").append("PapyrusModel/model2.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER006/model.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER006/model.uml").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER006/model2.notation").append(EOL);
+		expectedOut.append("Auto-merging failed in ").append("MER006/model2.uml").append(EOL);
 		expectedOut.append("Automatic merge failed; fix conflicts and then commit the result.").append(EOL)
 				.append(EOL);
 		assertOutputMessageEnd(expectedOut.toString());
 
-		Set<String> expectedConflictingFilePath = Sets.newHashSet("PapyrusModel/model.uml",
-				"PapyrusModel/model.notation", "PapyrusModel/model2.uml", "PapyrusModel/model2.notation");
+		Set<String> expectedConflictingFilePath = Sets.newHashSet("MER006/model.uml",
+				"MER006/model.notation", "MER006/model2.uml", "MER006/model2.notation");
 		assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
 	}
 

@@ -8,15 +8,13 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.git.pgm.app;
+package org.eclipse.emf.compare.git.pgm.app.suite;
 
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.textui.TestRunner;
 
-import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalDiffIntegrationTest;
-import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalMergeCommandIntegrationTest;
-import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalMergeToolIntegrationTest;
+import org.eclipse.emf.compare.git.pgm.app.internal.app.LogicalMergeApplicationTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -25,16 +23,15 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
 @RunWith(Suite.class)
-@SuiteClasses({LogicalMergeCommandIntegrationTest.class, LogicalMergeToolIntegrationTest.class,
-		LogicalDiffIntegrationTest.class })
-public class IntegrationTests {
+@SuiteClasses({LogicalMergeApplicationTest.class })
+public class AllLogicalApplicationTests {
 
 	public static void main(String[] args) {
 		TestRunner.run(suite());
 	}
 
 	public static Test suite() {
-		return new JUnit4TestAdapter(IntegrationTests.class);
+		return new JUnit4TestAdapter(AllLogicalApplicationTests.class);
 	}
 
 }

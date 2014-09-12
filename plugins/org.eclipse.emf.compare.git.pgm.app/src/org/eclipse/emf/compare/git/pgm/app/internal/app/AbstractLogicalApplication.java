@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app.internal.app;
 
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
@@ -26,12 +28,18 @@ import org.eclipse.core.resources.mapping.RemoteResourceMappingContext;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.egit.core.JobFamilies;
 import org.eclipse.egit.core.synchronize.GitResourceVariantTreeSubscriber;
 import org.eclipse.egit.core.synchronize.GitSubscriberResourceMappingContext;
 import org.eclipse.egit.core.synchronize.dto.GitSynchronizeData;
 import org.eclipse.egit.core.synchronize.dto.GitSynchronizeDataSet;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.ProgressPageLog;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserGitAware;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.GitDirHandler;
@@ -106,19 +114,19 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	/**
 	 * Performs the logical git command (diff or merge).
 	 * 
-	 * @return a {@link org.eclipse.emf.compare.git.pgm.app.ReturnCode}.
+	 * @return a {@link org.eclipse.emf.compare.git.pgm.app.Returns}.
 	 */
-	protected abstract Integer performGitCommand();
+	protected abstract Integer performGitCommand() throws Die;
 
 	/**
 	 * Creates and configure the setup task performer to execute the imports of projects referenced in the
 	 * user setup model. Then call the {@link #performGitCommand()}.
 	 * 
-	 * @return a {@link org.eclipse.emf.compare.git.pgm.app.ReturnCode}.
+	 * @return a {@link org.eclipse.emf.compare.git.pgm.app.Returns}.
 	 * @throws IOException
 	 * @throws Die
 	 */
-	protected Integer performStartup() throws Die {
+	protected void performStartup() throws Die {
 		ComposedAdapterFactory adapterFactory = new ComposedAdapterFactory(BaseEditUtil
 				.createAdapterFactory());
 
@@ -149,7 +157,54 @@ public abstract class AbstractLogicalApplication implements IApplication {
 			progressPageLog = new ProgressPageLog(System.out);
 			performerStartup.setProgress(progressPageLog);
 
-			final IWorkspace workspace = org.eclipse.core.resources.ResourcesPlugin.getWorkspace();
+			cleanWorkspace();
+
+			// Import Projects
+			for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
+				for (Project project : projectCatalog.getProjects()) {
+					for (SetupTask setupTask : project.getSetupTasks()) {
+						performerStartup.getTriggeredSetupTasks().add(setupTask);
+					}
+				}
+			}
+
+			performerStartup.perform();
+
+			validatePerform(performerStartup);
+
+			waitEgitJobs();
+
+		} catch (Exception e) {
+			progressPageLog.log(e);
+			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying("Error during Oomph operation").ready();
+		}
+	}
+
+	/**
+	 * @param performerStartup
+	 * @throws Die
+	 */
+	private void validatePerform(SetupTaskPerformer performerStartup) throws Die {
+		if (!performerStartup.hasSuccessfullyPerformed()) {
+			throw new DiesOn(DeathType.FATAL).displaying("Error during Oomph operation: Failure").ready();
+		}
+
+		if (performerStartup.isCanceled()) {
+			throw new DiesOn(DeathType.FATAL).displaying("Error during Oomph operation: Canceled").ready();
+		}
+
+		if (performerStartup.isRestartNeeded()) {
+			throw new DiesOn(DeathType.FATAL).displaying("Error during Oomph operation: Need restart")
+					.ready();
+		}
+	}
+
+	/**
+	 * @throws CoreException
+	 */
+	private void cleanWorkspace() throws Die {
+		final IWorkspace workspace = org.eclipse.core.resources.ResourcesPlugin.getWorkspace();
+		try {
 			workspace.run(new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					IWorkspaceRoot root = workspace.getRoot();
@@ -172,8 +227,10 @@ public abstract class AbstractLogicalApplication implements IApplication {
 									try {
 										importHistory.createNewFile();
 									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+										throw new CoreException(
+												new Status(IStatus.ERROR,
+														"org.eclipse.emf.compare.git.pgm.app",
+														"Unable to delete the file .plugins/org.eclipse.oomph.setup.projects/import-history.properties"));
 									}
 								}
 							}
@@ -181,29 +238,20 @@ public abstract class AbstractLogicalApplication implements IApplication {
 					}
 				}
 			}, null);
-
-			// Import Projects
-			for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
-				for (Project project : projectCatalog.getProjects()) {
-					for (SetupTask setupTask : project.getSetupTasks()) {
-						performerStartup.getTriggeredSetupTasks().add(setupTask);
-					}
-				}
-			}
-
-			performerStartup.perform();
-
-			if (!performerStartup.hasSuccessfullyPerformed()) {
-				throw new DiesOn(DeathType.FATAL).displaying("Error during Oomph operation").ready();
-			}
-		} catch (Exception e) {
-			progressPageLog.log(e);
-			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying("Error during Oomph operation").ready();
+		} catch (CoreException e) {
+			throw new DiesOn(DeathType.FATAL).duedTo(e).ready();
 		}
+	}
 
-		Integer returnCode = performGitCommand();
-
-		return returnCode;
+	/**
+	 * @throws InterruptedException
+	 */
+	private void waitEgitJobs() throws InterruptedException {
+		IJobManager jobMan = Job.getJobManager();
+		jobMan.join(JobFamilies.AUTO_SHARE, new NullProgressMonitor());
+		jobMan.join(JobFamilies.AUTO_IGNORE, new NullProgressMonitor());
+		jobMan.join(JobFamilies.REPOSITORY_CHANGED, new NullProgressMonitor());
+		jobMan.join(JobFamilies.INDEX_DIFF_CACHE_UPDATE, new NullProgressMonitor());
 	}
 
 	/**
@@ -211,24 +259,38 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	 */
 	public Object start(IApplicationContext context) throws Exception {
 		// Prevents VM args if the application exits on somehting different that 0
-		System.setProperty(IApplicationContext.EXIT_DATA_PROPERTY, "");
-		final Map args = context.getArguments();
+		System.setProperty(IApplicationContext.EXIT_DATA_PROPERTY, EMPTY_STRING);
+		final Map<?, ?> args = context.getArguments();
 		final String[] appArgs = (String[])args.get("application.args"); //$NON-NLS-1$
 
-		final CmdLineParserGitAware clp = new CmdLineParserGitAware(this, null);
+		// final CmdLineParserEGitAware clp = new CmdLineParserEGitAware(this, null);
+		final CmdLineParserGitAware clp = CmdLineParserGitAware.newGitRepoBuilderCmdParser(this);
 		try {
 			clp.parseArgument(appArgs);
 			repo = clp.getRepo();
 		} catch (CmdLineException err) {
 			err.printStackTrace();
 			System.err.println(err.getMessage());
+			dispose();
+			return Returns.ERROR;
 		}
 		try {
-			return performStartup();
+			performStartup();
+			return performGitCommand();
 		} catch (Die e) {
-			return EMFCompareGitPGMUtil.handleDieError(e, true);
+			Integer returnCode = EMFCompareGitPGMUtil.handleDieError(e, true);
+			return returnCode;
+		} finally {
+			dispose();
 		}
 
+	}
+
+	protected void dispose() {
+		if (repo != null) {
+			repo.close();
+		}
+		progressPageLog.setTerminating();
 	}
 
 	/**

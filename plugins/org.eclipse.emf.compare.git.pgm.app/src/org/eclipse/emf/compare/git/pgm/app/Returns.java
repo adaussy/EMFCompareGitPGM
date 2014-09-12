@@ -17,49 +17,37 @@ import org.eclipse.equinox.app.IApplication;
  * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
-public final class ReturnCode {
-
+public enum Returns {
 	/**
 	 * Action terminated normally.
 	 */
-	public static final Integer COMPLETE = IApplication.EXIT_OK;
-
+	COMPLETE(IApplication.EXIT_OK),
 	/**
 	 * The action has not finished completely.
 	 */
-	public static final Integer ABORTED = Integer.valueOf(1);
-
+	ABORTED(Integer.valueOf(1)),
 	/**
 	 * An error has occurred.
 	 */
-	public static final Integer ERROR = Integer.valueOf(128);
+	ERROR(Integer.valueOf(128));
 
-	/**
-	 * Private constructor.
-	 */
-	private ReturnCode() {
+	private final Integer code;
+
+	private Returns(Integer code) {
+		this.code = code;
 	}
 
-	/**
-	 * Convert the int code to the corresponding ReturnCode.
-	 * 
-	 * @param code
-	 *            the int code.
-	 * @return the corresponding ReturnCode.
-	 */
-	public static Integer convert(int code) {
-		Integer returnCode;
-		switch (code) {
-			case 0:
-				returnCode = ReturnCode.COMPLETE;
-				break;
-			case 1:
-				returnCode = ReturnCode.ABORTED;
-				break;
-			default:
-				returnCode = ReturnCode.ERROR;
-				break;
+	public final Integer code() {
+		return code;
+	}
+
+	public static Returns valueOf(int code) {
+		for (Returns r : Returns.values()) {
+			if (r.code().equals(Integer.valueOf(code))) {
+				return r;
+			}
 		}
-		return returnCode;
+		System.err.println(code + " is not a valid return code");
+		return ERROR;
 	}
 }

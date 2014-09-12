@@ -10,21 +10,26 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app;
 
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.emf.compare.git.pgm.app.mock.MockedApplicationContext;
+import org.eclipse.emf.compare.git.pgm.app.util.MockedApplicationContext;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -38,6 +43,7 @@ import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -107,15 +113,15 @@ public abstract class AbstractApplicationTest {
 		errStream = new ByteArrayOutputStream();
 		sysout = System.out;
 		syserr = System.err;
+
 		// Redirects out and err in order to test outputs.
 		System.setOut(new PrintStream(outputStream));
 		System.setErr(new PrintStream(errStream));
-		// Use a specific environment for testing to be able to reference the update site of the application.
+
 		app = buildApp();
 		setContext(new MockedApplicationContext());
 
-		setRepositoryPath(Files.createTempDirectory(testTmpFolder, REPO_PREFIX + "repo",
-				new FileAttribute<?>[] {}));
+		setRepositoryPath(Files.createTempDirectory(testTmpFolder, REPO_PREFIX, new FileAttribute<?>[] {}));
 		setGitFolderPath(new File(getRepositoryPath().toFile(), Constants.DOT_GIT));
 		git = Git.init().setDirectory(getRepositoryPath().toFile()).call();
 		// Saves the user.dire property to be able to restore it.( some tests can modify it)
@@ -148,21 +154,25 @@ public abstract class AbstractApplicationTest {
 
 		System.setErr(syserr);
 		errStream.close();
+
 	}
 
 	protected void setCmdLocation(String path) {
 		System.setProperty("user.dir", path); //$NON-NLS-1$
 	}
 
-	protected void assertOutputs(String outExpectedMessage, String errExpectedMessage) {
-		assertEquals(errExpectedMessage, errStream.toString());
-		assertEquals(outExpectedMessage, outputStream.toString());
-	}
-
 	protected void assertOutputMessageEnd(String expected) {
 		String outputStreamContent = outputStream.toString();
 		assertTrue("The output message should end with: " + EOL + expected + EOL + "but was: " + EOL
 				+ outputStreamContent, outputStreamContent.endsWith(expected));
+	}
+
+	protected void assertEmptyErrorMessage() {
+		assertEquals(EMPTY_STRING, errStream.toString());
+	}
+
+	protected void assertOutput(String message) {
+		assertEquals(message, outputStream.toString());
 	}
 
 	protected Path getTestTmpFolder() {
@@ -176,7 +186,9 @@ public abstract class AbstractApplicationTest {
 	protected RevCommit addAllAndCommit(String commitMessage) throws GitAPIException, NoFilepatternException,
 			NoHeadException, NoMessageException, UnmergedPathsException, ConcurrentRefUpdateException,
 			WrongRepositoryStateException {
-		git.add().addFilepattern(".").call();
+		DirCache dirChache = git.add().addFilepattern(".").call(); //$NON-NLS-1$
+		// Assert there is something to commit
+		assertTrue(dirChache.getEntriesWithin("").length > 0);
 		RevCommit revCommit = git.commit().setAuthor("Logical test author", "logicaltest@obeo.fr")
 				.setCommitter("Logical test author", "logicaltest@obeo.fr").setMessage(commitMessage).call();
 		return revCommit;
@@ -202,6 +214,39 @@ public abstract class AbstractApplicationTest {
 
 	protected void printErr() {
 		syserr.println(errStream.toString());
+	}
+
+	protected String getConfigurationMessage() throws IOException {
+		final StringBuilder builder = new StringBuilder();
+		builder.append("Configuration:").append(EOL);
+		builder.append("\t").append("Tmp folder: ").append(testTmpFolder.toString()).append(EOL);
+		builder.append("\t").append("Git folder: ").append(gitFolderPath.getAbsolutePath()).append(EOL);
+		builder.append("\t").append("Git content:").append(EOL);
+		Files.walkFileTree(repositoryPath, new FileVisitor<Path>() {
+
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				if (dir.endsWith(".git")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				} else {
+					builder.append("\t\t").append(dir.toString()).append(EOL);
+					return FileVisitResult.CONTINUE;
+				}
+			}
+
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+		});
+
+		return builder.toString();
 	}
 
 	public MockedApplicationContext getContext() {

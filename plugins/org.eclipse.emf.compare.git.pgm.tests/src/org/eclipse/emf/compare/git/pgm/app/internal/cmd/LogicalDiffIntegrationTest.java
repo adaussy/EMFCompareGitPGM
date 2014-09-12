@@ -18,13 +18,15 @@ import java.nio.file.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.app.LogicalApp;
-import org.eclipse.emf.compare.git.pgm.app.OomphUserModelBuilder;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
+import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.app.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;
 import org.junit.Test;
 
 /**
+ * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
 @SuppressWarnings("nls")
@@ -32,8 +34,9 @@ public class LogicalDiffIntegrationTest extends AbstractLogicalAppTest {
 
 	@Override
 	protected IApplication buildApp() {
-		return new LogicalApp(URI.createPlatformPluginURI(
-				"/org.eclipse.emf.compare.git.pgm.app/model/lunaIntegrationTest.setup", false));
+		return new LogicalApp(URI.createURI(
+				"platform:/fragment/org.eclipse.emf.compare.git.pgm.tests/model/lunaIntegrationTest.setup",
+				false));
 	}
 
 	@Test
@@ -56,7 +59,8 @@ public class LogicalDiffIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg(LogicalDiffCommand.LOGICAL_DIFF_CMD_NAME, newSetupFile.getAbsolutePath(),
 				"master", "master");
 		Object result = getApp().start(getContext());
-		assertOutputs("", "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutputMessageEnd("No difference to display.");
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 	}
 }

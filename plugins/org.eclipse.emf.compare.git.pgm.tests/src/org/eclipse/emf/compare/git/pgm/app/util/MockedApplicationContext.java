@@ -8,7 +8,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.git.pgm.app.mock;
+package org.eclipse.emf.compare.git.pgm.app.util;
 
 import com.google.common.collect.ObjectArrays;
 

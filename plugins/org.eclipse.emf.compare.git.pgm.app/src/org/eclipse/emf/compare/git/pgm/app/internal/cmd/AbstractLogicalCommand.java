@@ -32,7 +32,7 @@ import java.util.Collection;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.ProgressPageLog;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserGitAware;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.SetupFileOptionHandler;
@@ -98,7 +98,6 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Holds the Oomph model setup file.
 	 */
-	// Create an OptionHandler<OomphModel> to load this arg.
 	@Argument(index = 0, metaVar = "<setup>", required = true, usage = "Path to the setup file. The setup file is a Oomph model.", handler = SetupFileOptionHandler.class)
 	private File setupFile;
 
@@ -155,7 +154,7 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Executes the command.
 	 * 
-	 * @return The {@link ReturnCode} for this command.
+	 * @return The {@link Returns} for this command.
 	 * @throws Die
 	 *             if the program stop prematurely.
 	 * @throws IOException
@@ -167,7 +166,7 @@ public abstract class AbstractLogicalCommand {
 		} else {
 			out.print(usage);
 		}
-		return ReturnCode.COMPLETE;
+		return Returns.COMPLETE.code();
 	}
 
 	/**
@@ -188,7 +187,7 @@ public abstract class AbstractLogicalCommand {
 	 *             if the program exits prematurely.
 	 */
 	protected void parseArguments(Collection<String> args) throws Die {
-		final CmdLineParserGitAware clp = new CmdLineParserGitAware(this, getRepository());
+		final CmdLineParserGitAware clp = CmdLineParserGitAware.newGitAwareCmdParser(this, repo);
 		try {
 			clp.parseArgument(args);
 		} catch (ArgumentValidationError err) {

@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.EMFCompare;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.PathFilterHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.RefOptionHandler;
 import org.eclipse.emf.compare.ide.ui.internal.logical.ComparisonScopeBuilder;
@@ -108,6 +108,7 @@ public class LogicalDiffApplication extends AbstractLogicalApplication {
 			}
 			Set<IFile> files = new HashSet<IFile>();
 			List<DiffEntry> entries = diffCommand.call();
+
 			for (DiffEntry diffEntry : entries) {
 				String path = diffEntry.getOldPath();
 				if (path != null) {
@@ -116,6 +117,10 @@ public class LogicalDiffApplication extends AbstractLogicalApplication {
 						files.add(file);
 					}
 				}
+			}
+
+			if (files.isEmpty()) {
+				System.out.println("No difference to display.");
 			}
 
 			for (IFile file : files) {
@@ -164,7 +169,7 @@ public class LogicalDiffApplication extends AbstractLogicalApplication {
 			e.printStackTrace();
 		}
 
-		return ReturnCode.COMPLETE;
+		return Returns.COMPLETE.code();
 	}
 
 }

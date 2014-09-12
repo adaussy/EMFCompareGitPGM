@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.RefOptionHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType;
@@ -63,7 +63,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 	/**
 	 * Optional message used for the merge commit.
 	 */
-	@Option(name = "-m", metaVar = "message", required = false, usage = " Set the commit message to be used for the merge commit (in case one is created).")
+	@Option(name = "-m", metaVar = "message", required = false, usage = "Set the commit message to be used for the merge commit (in case one is created).")
 	private String message;
 
 	@Option(name = "--debug", usage = "Launched the provisonned eclipse in debug mode.", aliases = {"-d" })
@@ -93,7 +93,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 		OS os = performer.getOS();
 
 		if (!os.isCurrent()) {
-			return ReturnCode.ERROR;
+			return Returns.ERROR.code();
 		}
 
 		try {
@@ -160,7 +160,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 			throw new DiesOn(DeathType.FATAL).duedTo(e).ready();
 		}
 
-		return ReturnCode.convert(returnValue);
+		return Returns.valueOf(returnValue).code();
 	}
 
 	// For testing purpose.

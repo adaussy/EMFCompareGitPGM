@@ -8,7 +8,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.git.pgm.app;
+package org.eclipse.emf.compare.git.pgm.app.util;
 
 import java.io.File;
 import java.io.FileOutputStream;

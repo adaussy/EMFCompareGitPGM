@@ -48,9 +48,10 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 	public void helpTest() throws Exception {
 		getContext().addArg("--help");
 		Object result = getApp().start(getContext());
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertEquals(Returns.COMPLETE, result);
 		String expectMessage = getExpectedUsage() + getExpectedAvailableCommandUsage(); //
-		assertOutputs(expectMessage, "");
+		assertOutput(expectMessage);
+		assertEmptyErrorMessage();
 	}
 
 	@Test
@@ -60,8 +61,9 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 				+ EOL//
 				+ getExpectedAvailableCommandUsage() //
 				+ EOL;
-		assertOutputs(extectedOut, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput(extectedOut);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 
 	}
 
@@ -69,16 +71,18 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 	public void wrongOptTest() throws Exception {
 		getContext().addArg("-c");
 		Object result = getApp().start(getContext());
-		assertOutputs("fatal: \"-c\" is not a valid option" + EOL, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput("fatal: \"-c\" is not a valid option" + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test
 	public void wrongCmdTest() throws Exception {
 		getContext().addArg("wrongCmd");
 		Object result = getApp().start(getContext());
-		assertOutputs("fatal: Not a logical command wrongCmd" + EOL, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput("fatal: Not a logical command wrongCmd" + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 }

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app;
 
-import static org.eclipse.emf.compare.git.pgm.app.ReturnCode.COMPLETE;
-import static org.eclipse.emf.compare.git.pgm.app.ReturnCode.ERROR;
+import static org.eclipse.emf.compare.git.pgm.app.Returns.COMPLETE;
+import static org.eclipse.emf.compare.git.pgm.app.Returns.ERROR;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.FATAL;
 
 import com.google.common.collect.Lists;
@@ -135,7 +135,7 @@ public class LogicalApp implements IApplication {
 	 * 
 	 * @param argv
 	 *            application arguments.
-	 * @return {@link ReturnCode}
+	 * @return {@link Returns}
 	 * @throws Die
 	 * @throws IOException
 	 */

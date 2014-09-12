@@ -13,9 +13,7 @@ package org.eclipse.emf.compare.git.pgm.app.internal.args;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.ArgumentValidationError;
-import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
@@ -57,7 +55,7 @@ public class RefOptionHandler extends OptionHandler<ObjectId> {
 
 		ObjectId objectID;
 		try {
-			objectID = getRepository().resolve(ref);
+			objectID = ((CmdLineParserGitAware)owner).getRepo().resolve(ref);
 			setter.addValue(objectID);
 		} catch (Exception e) {
 			throw new ArgumentValidationError(owner, e);
@@ -66,16 +64,6 @@ public class RefOptionHandler extends OptionHandler<ObjectId> {
 			throw new ArgumentValidationError(owner, ref + " - not a valid git reference.");
 		}
 		return 1;
-	}
-
-	/**
-	 * Gets the git repository.
-	 * 
-	 * @return the git repository.
-	 * @throws Die
-	 */
-	private Repository getRepository() throws Die {
-		return ((CmdLineParserGitAware)owner).getRepo();
 	}
 
 	/**

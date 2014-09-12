@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 
 import org.eclipse.emf.compare.git.pgm.app.AbstractLogicalAppTest;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.junit.Test;
 
 /**
@@ -44,8 +44,9 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 		// Asks command help
 		getContext().addArg("--show-stack-trace", getCommandName(), "--help");
 		Object result = getApp().start(getContext());
-		assertOutputs(getExpectedUsage(), "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutput(getExpectedUsage());
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 	}
 
 	@Test
@@ -55,8 +56,9 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 		// Launches command from directory that is not contained by a git repository
 		setCmdLocation(myTmpDir.toString());
 		Object result = getApp().start(getContext());
-		assertOutputs("fatal: Can't find git repository" + EOL, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput("fatal: Can't find git repository" + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test
@@ -67,8 +69,9 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 		getContext().addArg(getCommandName(), incorrectSetupFilePath, "master");
 		Object result = getApp().start(getContext());
 		String expectedOut = "fatal: " + incorrectSetupFilePath + " setup file does not exist" + EOL;
-		assertOutputs(expectedOut, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput(expectedOut);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test
@@ -78,8 +81,9 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 		getContext().addArg(getCommandName(), "master");
 		Object result = getApp().start(getContext());
 		String expectedOut = "fatal: master setup file does not exist" + EOL; //
-		assertOutputs(expectedOut, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput(expectedOut);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 }

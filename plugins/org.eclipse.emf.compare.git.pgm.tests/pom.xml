@@ -18,11 +18,61 @@
 	<build>
 		<plugins>
 			<plugin>
+				<!-- We need to add some extra component to the test platform -->
+				<!-- This the new way to do it (https://bugs.eclipse.org/bugs/show_bug.cgi?id=436617#c11,https://bugs.eclipse.org/bugs/show_bug.cgi?id=438559,http://comments.gmane.org/gmane.comp.ide.eclipse.tycho.user/4154) -->
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+				<!-- Needed since the tests are now written with Java 8 -->
 					<executionEnvironment>JavaSE-1.8</executionEnvironment>
+<!-- 					<target> -->
+<!-- 						<artifact> -->
+<!-- 							<groupId>org.eclipse.emf.compare.git.pgm</groupId> -->
+<!-- 							<artifactId>org.eclipse.emf.compare.git.pgm.parent</artifactId> -->
+<!-- 							<version>${parent-version}</version> -->
+<!-- 							<classifier>targetPlatforms/org.eclipse.emf.compare.git.pgm</classifier> -->
+<!-- 						</artifact> -->
+<!-- 					</target> -->
+<!-- 					<dependency-resolution> -->
+<!-- 						<extraRequirements> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.emf.compare.uml2</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.emf.compare.ide.ui</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.uml2</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.gmf.runtime.notation</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.emf.compare.diagram</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.emf.compare.diagram.papyrus</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 							<requirement> -->
+<!-- 								<type>eclipse-feature</type> -->
+<!-- 								<id>org.eclipse.egit</id> -->
+<!-- 								<versionRange>0.0.0</versionRange> -->
+<!-- 							</requirement> -->
+<!-- 						</extraRequirements> -->
+<!-- 					</dependency-resolution> -->
 				</configuration>
 			</plugin>
 			<plugin>
@@ -31,8 +81,9 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<includes>
-						<include>org/eclipse/emf/compare/git/pgm/app/AllCommandLineArguementTests.java</include>
-						<include>org/eclipse/emf/compare/git/pgm/app/IntegrationTests</include>
+						<include>org/eclipse/emf/compare/git/pgm/app/suite/AllCommandLineArguementTests.java</include>
+						<include>org/eclipse/emf/compare/git/pgm/app/suite/IntegrationTests</include>
+						<include>org/eclipse/emf/compare/git/pgm/app/suite/AllLogicalApplicationTests.java</include>
 					</includes>
 				</configuration>
 			</plugin>

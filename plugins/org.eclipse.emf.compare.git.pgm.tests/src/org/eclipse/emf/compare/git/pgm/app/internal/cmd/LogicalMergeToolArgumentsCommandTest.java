@@ -17,8 +17,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.eclipse.emf.compare.git.pgm.app.OomphUserModelBuilder;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
+import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.app.util.ProjectBuilder;
 import org.junit.Test;
 
@@ -37,15 +37,12 @@ public class LogicalMergeToolArgumentsCommandTest extends AbstractLogicalCommand
 	protected String getExpectedUsage() {
 		//@formatter:off
 		return EOL //
-				+ "logicalmergetool <setup> [--help (-h)] [--show-stack-trace] [--silent-oomph (-so)]" + EOL //
+				+ "logicalmergetool <setup> [--help (-h)] [--show-stack-trace]" + EOL //
 				+ EOL //
-				+ " <setup>              : Path to the setup file. The setup file is a Oomph model." + EOL //
-				+ " --help (-h)          : Dispays help for this command." + EOL //
-				+ " --show-stack-trace   : Use this option to display java stack trace in console" + EOL
-				+ "                        on error." + EOL
-				+ " --silent-oomph (-so) : Use this to hide the log from Oomph. In this case the" + EOL
-				+ "                        log from Oomph will be located in a file in the eclipse" + EOL
-				+ "                        instalation folder." + EOL
+				+ " <setup>            : Path to the setup file. The setup file is a Oomph model." + EOL //
+				+ " --help (-h)        : Dispays help for this command." + EOL //
+				+ " --show-stack-trace : Use this option to display java stack trace in console on" + EOL
+				+ "                      error." + EOL
 				+ EOL; //
 		//@formatter:on
 	}
@@ -72,8 +69,9 @@ public class LogicalMergeToolArgumentsCommandTest extends AbstractLogicalCommand
 		String expectedOut = "fatal: Too many arguments: extraArg in:" + EOL//
 				+ getExpectedUsage() //
 				+ EOL; //
-		assertOutputs(expectedOut, "");
-		assertEquals(ReturnCode.ERROR, result);
+		assertOutput(expectedOut);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 }

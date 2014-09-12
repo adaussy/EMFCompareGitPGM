@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.egit.core.op.MergeOperation;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.RefOptionHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType;
@@ -82,7 +82,7 @@ public class LogicalMergeApplication extends AbstractLogicalApplication {
 	 * {@inheritDoc}.
 	 */
 	@Override
-	protected Integer performGitCommand() {
+	protected Integer performGitCommand() throws Die {
 
 		try {
 			MergeOperation merge = new MergeOperation(repo, commit.getName());
@@ -94,13 +94,13 @@ public class LogicalMergeApplication extends AbstractLogicalApplication {
 			return handleResult(result, oldHead, MergeStrategy.RECURSIVE);
 		} catch (Exception e) {
 			progressPageLog.log(e);
+			throw new DiesOn(DeathType.FATAL).duedTo(e).ready();
 		}
 
-		return ReturnCode.ERROR;
 	}
 
 	/**
-	 * Handles the merge result. This method return the {@link ReturnCode} depending of the merge status and
+	 * Handles the merge result. This method return the {@link Returns} depending of the merge status and
 	 * display a message to the user.
 	 * 
 	 * @param mergeResult
@@ -109,7 +109,7 @@ public class LogicalMergeApplication extends AbstractLogicalApplication {
 	 *            the old HEAD reference before merge.
 	 * @param strategy
 	 *            The strategy used for the merge.
-	 * @return a {@link ReturnCode}.
+	 * @return a {@link Returns}.
 	 * @throws Die
 	 *             if the merge ends on error.
 	 * @throws IOException
@@ -123,18 +123,18 @@ public class LogicalMergeApplication extends AbstractLogicalApplication {
 			case MERGED:
 				messageToPrint = new StringBuilder().append("Merge made by '").append(strategy.getName())
 						.append("' strategy.").append(EOL).toString();
-				returnCode = ReturnCode.COMPLETE;
+				returnCode = Returns.COMPLETE.code();
 				break;
 			case ALREADY_UP_TO_DATE:
 				messageToPrint = new StringBuilder().append("Already up to date.").append(EOL).toString();
-				returnCode = ReturnCode.COMPLETE;
+				returnCode = Returns.COMPLETE.code();
 				break;
 			case FAST_FORWARD:
 				messageToPrint = buildFastForwardMessage(mergeResult, oldHead);
-				returnCode = ReturnCode.COMPLETE;
+				returnCode = Returns.COMPLETE.code();
 				break;
 			case CONFLICTING:
-				returnCode = ReturnCode.ABORTED;
+				returnCode = Returns.ABORTED.code();
 				messageToPrint = buildConflictingMessage(mergeResult);
 				break;
 			case FAILED:

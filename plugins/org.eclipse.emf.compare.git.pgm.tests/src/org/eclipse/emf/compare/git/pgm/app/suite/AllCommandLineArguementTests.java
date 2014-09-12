@@ -8,12 +8,13 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.git.pgm.app;
+package org.eclipse.emf.compare.git.pgm.app.suite;
 
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.textui.TestRunner;
 
+import org.eclipse.emf.compare.git.pgm.app.LogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalDiffArgumentsTest;
 import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalMergeCommandArgumentsTest;
 import org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalMergeToolArgumentsCommandTest;

@@ -32,19 +32,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-<!-- 	<dependencies> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.tycho</groupId> -->
-<!-- 			<artifactId>org.eclipse.jdt.core</artifactId> -->
-<!-- 			<version>${jdtVersionMaven}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.tycho</groupId> -->
-<!-- 			<artifactId>org.eclipse.jdt.compiler.apt</artifactId> -->
-<!-- 			<version>${jdtAptVersionMaven}</version> -->
-<!-- 		</dependency> -->
-<!-- 	</dependencies> -->
-
 	<repositories>
 		<repository>
 			<id>eclipse-luna</id>

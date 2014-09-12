@@ -11,6 +11,7 @@
 package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 
 import static org.eclipse.emf.compare.git.pgm.app.internal.cmd.LogicalMergeCommand.LOGICAL_MERGE_CMD_NAME;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,14 +22,16 @@ import java.nio.file.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.app.LogicalApp;
-import org.eclipse.emf.compare.git.pgm.app.OomphUserModelBuilder;
-import org.eclipse.emf.compare.git.pgm.app.ReturnCode;
+import org.eclipse.emf.compare.git.pgm.app.Returns;
+import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.app.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 /**
+ * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
 @SuppressWarnings("nls")
@@ -36,8 +39,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 	@Override
 	protected IApplication buildApp() {
-		return new LogicalApp(URI.createPlatformPluginURI(
-				"/org.eclipse.emf.compare.git.pgm.app/model/lunaIntegrationTest.setup", false));
+		return new LogicalApp(URI.createURI(
+				"platform:/fragment/org.eclipse.emf.compare.git.pgm.tests/model/lunaIntegrationTest.setup",
+				false));
 	}
 
 	@Test
@@ -59,8 +63,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg("--show-stack-trace", LOGICAL_MERGE_CMD_NAME, newSetupFile.getAbsolutePath(),
 				"master");
 		Object result = getApp().start(getContext());
-		assertOutputs("Already up to date", "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 	}
 
 	@Test
@@ -82,8 +87,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		// Tests referencing a commit using its id.
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), rev.getId().name());
 		Object result = getApp().start(getContext());
-		assertOutputs("", "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
 		LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
 		assertNotNull(mergeCmd.getCommit());
@@ -109,8 +115,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg("--git-dir", getGitFolderPath().toString(), LOGICAL_MERGE_CMD_NAME,
 				setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
-		assertOutputs("", "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
 		LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
 		assertNotNull(mergeCmd.getCommit());
@@ -134,8 +141,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
-		assertOutputs("", "");
-		assertEquals(ReturnCode.COMPLETE, result);
+		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
 		LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
 		assertNotNull(mergeCmd.getCommit());
