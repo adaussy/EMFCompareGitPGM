@@ -15,7 +15,9 @@ import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGM
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
@@ -37,13 +39,15 @@ public class LogicalMergeToolArgumentsCommandTest extends AbstractLogicalCommand
 	protected String getExpectedUsage() {
 		//@formatter:off
 		return EOL //
-				+ "logicalmergetool <setup> [--help (-h)] [--show-stack-trace]" + EOL //
-				+ EOL //
-				+ " <setup>            : Path to the setup file. The setup file is a Oomph model." + EOL //
-				+ " --help (-h)        : Dispays help for this command." + EOL //
-				+ " --show-stack-trace : Use this option to display java stack trace in console on" + EOL
-				+ "                      error." + EOL
-				+ EOL; //
+				+ "logicalmergetool <setup> [--git-dir gitFolderPath] [--help (-h)] [--show-stack-trace]" + EOL 
+				+ EOL 
+				+ " <setup>                 : Path to the setup file. The setup file is a Oomph" + EOL 
+				+ "                           model." + EOL 
+				+ " --git-dir gitFolderPath : Path to the .git folder of your repository." + EOL 
+				+ " --help (-h)             : Dispays help for this command." + EOL 
+				+ " --show-stack-trace      : Use this option to display java stack trace in" + EOL 
+				+ "                           console on error."+ EOL
+				+ EOL ; //
 		//@formatter:on
 	}
 
@@ -70,6 +74,23 @@ public class LogicalMergeToolArgumentsCommandTest extends AbstractLogicalCommand
 				+ getExpectedUsage() //
 				+ EOL; //
 		assertOutput(expectedOut);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
+	}
+
+	@Test
+	public void isNotAGitRepoTest() throws Exception {
+		Path myTmpDir = Files.createTempDirectory(getTestTmpFolder(), "NotARepo", new FileAttribute<?>[] {});
+		// Launches command from directory that is not contained by a git repository
+		setCmdLocation(myTmpDir.toString());
+
+		File setupFile = new OomphUserModelBuilder()//
+				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
+
+		getContext().addArg(getCommandName(), setupFile.getAbsolutePath());
+
+		Object result = getApp().start(getContext());
+		assertOutput("fatal: Can't find git repository" + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.ERROR.code(), result);
 	}

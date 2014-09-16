@@ -22,7 +22,7 @@ import org.kohsuke.args4j.spi.StringOptionHandler;
 
 /**
  * OptionHandler that parses a git directory from a command line and set the gitdir value of the
- * CmdLineParserGitAware.
+ * CmdLineParserRepositoryBuilder.
  * 
  * @author <a href="mailto:axel.richard@obeo.fr">Axel Richard</a>
  */
@@ -40,7 +40,7 @@ public class GitDirHandler extends StringOptionHandler {
 	 */
 	public GitDirHandler(CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
 		super(parser, option, setter);
-		Preconditions.checkArgument(parser instanceof CmdLineParserGitAware);
+		Preconditions.checkArgument(parser instanceof CmdLineParserRepositoryBuilder);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class GitDirHandler extends StringOptionHandler {
 	@Override
 	public int parseArguments(Parameters params) throws CmdLineException {
 		String dir = params.getParameter(0);
-		((CmdLineParserGitAware)owner).setGitDir(dir);
+		((CmdLineParserRepositoryBuilder)owner).setGitDir(dir);
 		return 1;
 	}
 

@@ -34,7 +34,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.ProgressPageLog;
-import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserGitAware;
+import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserRepositoryBuilder;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.SetupFileOptionHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.ArgumentValidationError;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
@@ -108,6 +108,12 @@ public abstract class AbstractLogicalCommand {
 	private boolean showStackTrace;
 
 	/**
+	 * Holds git directory location.
+	 */
+	@Option(name = "--git-dir", metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.")
+	private String gitdir;
+
+	/**
 	 * Name of this command.
 	 */
 	private String commandName;
@@ -179,21 +185,31 @@ public abstract class AbstractLogicalCommand {
 	}
 
 	/**
-	 * Parses the arguments related to this command.
+	 * Parses the arguments related to this command. It also in charge of building the git repository.
+	 * <p>
+	 * Since the --git-dir option can be passed throught the command line, the parser is also in charge of
+	 * building the repository
+	 * </p>
 	 * 
 	 * @param args
 	 *            arguments.
 	 * @throws Die
 	 *             if the program exits prematurely.
 	 */
-	protected void parseArguments(Collection<String> args) throws Die {
-		final CmdLineParserGitAware clp = CmdLineParserGitAware.newGitAwareCmdParser(this, repo);
+	protected Repository parseArgumentsAndBuildRepo(Collection<String> args) throws Die {
+		final CmdLineParserRepositoryBuilder clp = CmdLineParserRepositoryBuilder
+				.newJGitRepoBuilderCmdParser(this);
 		try {
 			clp.parseArgument(args);
 		} catch (ArgumentValidationError err) {
 			// Only throw an error if the user has not required help.
 			if (!help) {
-				throw new DiesOn(FATAL).displaying(err.getMessage()).ready();
+				if (err.getCause() instanceof Die) {
+					// Do not wrap a Die exception
+					throw (Die)err.getCause();
+				} else {
+					throw new DiesOn(FATAL).displaying(err.getMessage()).ready();
+				}
 			}
 		} catch (CmdLineException err) {
 			// Only throw an error if the user has not required help.
@@ -214,6 +230,7 @@ public abstract class AbstractLogicalCommand {
 			printWritter.close();
 			usage = localOut.toString();
 		}
+		return clp.getRepo();
 	}
 
 	/**
@@ -264,22 +281,22 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Builds this command.
 	 * 
-	 * @param repository
-	 *            the repository this command uses.
 	 * @param args
 	 *            The arguments for this command.
+	 * @param environmentSetupURI
+	 *            URI to the environment setup file.
 	 * @throws Die
 	 *             exception on error.
 	 * @throws IOException
 	 */
-	public void build(final Repository repository, Collection<String> args, URI environmentSetupURI)
-			throws Die, IOException {
-		// // The stack trace option can either comme from the
-		// this.showStackTrace = showStackTrace || displayStackTrace;
+	public void build(Collection<String> args, URI environmentSetupURI) throws Die, IOException {
+
+		repo = parseArgumentsAndBuildRepo(args);
+
 		try {
 			final String outputEncoding;
-			if (repository != null) {
-				outputEncoding = repository.getConfig().getString("i18n", null, "logOutputEncoding"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (repo != null) {
+				outputEncoding = repo.getConfig().getString("i18n", null, "logOutputEncoding"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				outputEncoding = null;
 			}
@@ -293,9 +310,7 @@ public abstract class AbstractLogicalCommand {
 		} catch (IOException e) {
 			throw new DiesOn(SOFTWARE_ERROR).displaying("Cannot create input stream").ready();
 		}
-		repo = repository;
 
-		parseArguments(args);
 		if (!help) {
 			try {
 				// Loads eclipse environment setup model.

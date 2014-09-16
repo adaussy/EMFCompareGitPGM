@@ -13,10 +13,6 @@ package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
-
 import org.eclipse.emf.compare.git.pgm.app.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.junit.Test;
@@ -47,18 +43,6 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 		assertOutput(getExpectedUsage());
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
-	}
-
-	@Test
-	public void isNotAGitRepoTest() throws Exception {
-		Path myTmpDir = Files.createTempDirectory(getTestTmpFolder(), "NotARepo", new FileAttribute<?>[] {});
-		getContext().addArg(getCommandName());
-		// Launches command from directory that is not contained by a git repository
-		setCmdLocation(myTmpDir.toString());
-		Object result = getApp().start(getContext());
-		assertOutput("fatal: Can't find git repository" + EOL);
-		assertEmptyErrorMessage();
-		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test

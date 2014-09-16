@@ -17,7 +17,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.util.OomphUserModelBuilder;
@@ -41,18 +43,37 @@ public class LogicalMergeCommandArgumentsTest extends AbstractLogicalCommandTest
 	protected String getExpectedUsage() {
 		//@formatter:off
 		return EOL //
-				+ "logicalmerge <setup> <commit> [--debug (-d)] [--help (-h)] [--show-stack-trace] [-m message]" + EOL 
+				+ "logicalmerge <setup> <commit> [--debug (-d)] [--git-dir gitFolderPath] [--help (-h)] [--show-stack-trace] [-m message]" + EOL 
 				+ EOL 
-				+ " <setup>            : Path to the setup file. The setup file is a Oomph model." + EOL 
-				+ " <commit>           : Commit ID or branch name to merge." + EOL 
-				+ " --debug (-d)       : Launched the provisonned eclipse in debug mode."+ EOL
-				+ " --help (-h)        : Dispays help for this command." + EOL 
-				+ " --show-stack-trace : Use this option to display java stack trace in console on" + EOL
-				+ "                      error." + EOL
-				+ " -m message         : Set the commit message to be used for the merge commit" + EOL 
-				+ "                      (in case one is created)." + EOL 
+				+ " <setup>                 : Path to the setup file. The setup file is a Oomph" + EOL 
+				+ "                           model." +EOL
+				+ " <commit>                : Commit ID or branch name to merge." + EOL 
+				+ " --debug (-d)            : Launched the provisonned eclipse in debug mode."+ EOL
+				+ " --git-dir gitFolderPath : Path to the .git folder of your repository."+ EOL
+				+ " --help (-h)             : Dispays help for this command." + EOL 
+				+ " --show-stack-trace      : Use this option to display java stack trace in" + EOL
+				+ "                           console on error." + EOL
+				+ " -m message              : Set the commit message to be used for the merge" + EOL 
+				+ "                           commit (in case one is created)." + EOL 
 				+ EOL; 
 		//@formatter:on
+	}
+
+	@Test
+	public void isNotAGitRepoTest() throws Exception {
+		Path myTmpDir = Files.createTempDirectory(getTestTmpFolder(), "NotARepo", new FileAttribute<?>[] {});
+		// Launches command from directory that is not contained by a git repository
+		setCmdLocation(myTmpDir.toString());
+
+		File setupFile = new OomphUserModelBuilder()//
+				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
+
+		getContext().addArg(getCommandName(), setupFile.getAbsolutePath(), "master");
+
+		Object result = getApp().start(getContext());
+		assertOutput("fatal: Can't find git repository" + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test
@@ -111,7 +132,7 @@ public class LogicalMergeCommandArgumentsTest extends AbstractLogicalCommandTest
 		addAllAndCommit("First commit");
 
 		// Provides the repository using parameter
-		getContext().addArg("--git-dir", "x/x/x/incorrectPathToGitDir", LOGICAL_MERGE_CMD_NAME,
+		getContext().addArg(LOGICAL_MERGE_CMD_NAME, "--git-dir", "x/x/x/incorrectPathToGitDir",
 				newSetupFile.getAbsolutePath(), "master");
 
 		Object result = getApp().start(getContext());

@@ -41,7 +41,7 @@ import org.eclipse.egit.core.synchronize.dto.GitSynchronizeDataSet;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.ProgressPageLog;
-import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserGitAware;
+import org.eclipse.emf.compare.git.pgm.app.internal.args.CmdLineParserRepositoryBuilder;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.GitDirHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.args.SetupFileOptionHandler;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
@@ -263,8 +263,9 @@ public abstract class AbstractLogicalApplication implements IApplication {
 		final Map<?, ?> args = context.getArguments();
 		final String[] appArgs = (String[])args.get("application.args"); //$NON-NLS-1$
 
-		// final CmdLineParserEGitAware clp = new CmdLineParserEGitAware(this, null);
-		final CmdLineParserGitAware clp = CmdLineParserGitAware.newGitRepoBuilderCmdParser(this);
+		// This time it creates the repository using EGit code in order to add the repository to the EGit cache
+		final CmdLineParserRepositoryBuilder clp = CmdLineParserRepositoryBuilder
+				.newEGitRepoBuilderCmdParser(this);
 		try {
 			clp.parseArgument(appArgs);
 			repo = clp.getRepo();

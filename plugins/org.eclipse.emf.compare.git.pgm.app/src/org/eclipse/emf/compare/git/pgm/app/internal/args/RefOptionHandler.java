@@ -41,7 +41,7 @@ public class RefOptionHandler extends OptionHandler<ObjectId> {
 	 */
 	public RefOptionHandler(CmdLineParser parser, OptionDef option, Setter<? super ObjectId> setter) {
 		super(parser, option, setter);
-		Preconditions.checkArgument(parser instanceof CmdLineParserGitAware);
+		Preconditions.checkArgument(parser instanceof CmdLineParserRepositoryBuilder);
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class RefOptionHandler extends OptionHandler<ObjectId> {
 
 		ObjectId objectID;
 		try {
-			objectID = ((CmdLineParserGitAware)owner).getRepo().resolve(ref);
+			objectID = ((CmdLineParserRepositoryBuilder)owner).getRepo().resolve(ref);
 			setter.addValue(objectID);
 		} catch (Exception e) {
 			throw new ArgumentValidationError(owner, e);

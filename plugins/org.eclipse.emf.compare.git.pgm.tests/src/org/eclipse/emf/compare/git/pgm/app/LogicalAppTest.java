@@ -35,12 +35,11 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 
 	private String getExpectedUsage() {
 		//@formatter:off
-		return "logicalApp --git-dir gitFolderPath --help (-h) --show-stack-trace command [ARG ...]" + EOL
+		return "logicalApp --help (-h) --show-stack-trace command [ARG ...]" + EOL
 				+ EOL //
-				+ " --git-dir gitFolderPath : Path to the .git folder of your repository." + EOL
-				+ " --help (-h)             : Displays help for this command" + EOL
-				+ " --show-stack-trace      : Use this option to display java stack trace in" + EOL
-				+ "                           console on error." + EOL;
+				+ " --help (-h)        : Displays help for this command" + EOL
+				+ " --show-stack-trace : Use this option to display java stack trace in console on" + EOL
+				+ "                      error." + EOL;
 		//@formatter:on
 	}
 
@@ -57,8 +56,7 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 	@Test
 	public void noArgumentTest() throws Exception {
 		Object result = getApp().start(getContext());
-		String extectedOut = "fatal: logicalApp --git-dir gitFolderPath --help (-h) --show-stack-trace command [ARG ...]"
-				+ EOL//
+		String extectedOut = "fatal: logicalApp --help (-h) --show-stack-trace command [ARG ...]" + EOL//
 				+ getExpectedAvailableCommandUsage() //
 				+ EOL;
 		assertOutput(extectedOut);

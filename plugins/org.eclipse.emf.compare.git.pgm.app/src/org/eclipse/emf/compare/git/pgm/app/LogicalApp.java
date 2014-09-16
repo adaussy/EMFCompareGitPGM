@@ -73,12 +73,6 @@ public class LogicalApp implements IApplication {
 	private boolean showStackTrace;
 
 	/**
-	 * Holds git directory location.
-	 */
-	@Option(name = "--git-dir", metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.")
-	private String gitdir;
-
-	/**
 	 * Holds the logical command to be run.
 	 */
 	@Argument(index = 0, metaVar = "cmd", required = true, handler = LogicalCommandHandler.class)
@@ -165,7 +159,7 @@ public class LogicalApp implements IApplication {
 		// The show stack trace option can either be use in the global app or in the local command
 		showStackTrace |= logicalCommand.isShowStackTrace();
 
-		logicalCommand.build(EMFCompareGitPGMUtil.buildRepository(gitdir), arguments, environmentSetupURI);
+		logicalCommand.build(arguments, environmentSetupURI);
 
 		Object returnCode;
 		try {
