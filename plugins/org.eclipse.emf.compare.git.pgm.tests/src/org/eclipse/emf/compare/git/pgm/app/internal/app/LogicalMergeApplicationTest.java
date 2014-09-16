@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -173,12 +174,12 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 * @return
 	 * @throws IOException
 	 */
-	private File createPapyrusUserOomphModel(File project) throws IOException {
+	private File createPapyrusUserOomphModel(File... project) throws IOException {
 		OomphUserModelBuilder userModelBuilder = new OomphUserModelBuilder();
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File userSetupFile = userModelBuilder.setInstallationTaskLocation(oomphFolderPath.toString()) //
 				.setWorkspaceLocation(getWorkspaceLocation().getAbsolutePath()) //
-				.setProjectPaths(project.getAbsolutePath()) //
+				.setProjectPaths(Arrays.stream(project).map(p -> p.getAbsolutePath()).toArray(String[]::new)) //
 				.setRepositories("http://download.eclipse.org/releases/luna/201406250900",
 						"http://download.eclipse.org/modeling/emf/compare/updates/nightly/latest/") //
 				.setRequirements("org.eclipse.uml2.feature.group",
@@ -232,6 +233,54 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	protected LogicalMergeApplication getApp() {
 		return (LogicalMergeApplication)super.getApp();
 	}
+
+	// @Test
+	// public void incorrectOomphSetupFile_NoExistingProject() throws Exception {
+	// Path projectPath = getRepositoryPath().resolve("AProject");
+	// File project = new ProjectBuilder(this) //
+	// .addNewFileContent("ATextFile.txt", "SomeContent").create(projectPath);
+	// String branchA = "branch_a";
+	// addAllAndCommit("Initial commit");
+	// createBranch(branchA, "master");
+	//
+	// getGit().close();
+	//
+	// // Creates Oomph model
+	// File userSetupFile = createPapyrusUserOomphModel(getRepositoryPath().resolve("NonExistingProject")
+	// .toFile());
+	//
+	// // Mocks that the commands is lauched from the git repository folder.
+	// setCmdLocation(getRepositoryPath().toString());
+	//
+	// // Sets args
+	// getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
+	// branchA);
+	//
+	// // Runs command
+	// Object result = getApp().start(getContext());
+	//
+	// // Uncomments to displays output
+	// printOut();
+	// printErr();
+	//
+	// // IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	// // assertEquals(1, projectInWorkspace.length);
+	// //
+	// // assertEquals(Returns.ABORTED.code(), result);
+	// //
+	// // StringBuilder expectedOut = new StringBuilder();
+	// // expectedOut.append("Auto-merging failed in ").append("MER001/model.notation").append(EOL);
+	// // expectedOut.append("Auto-merging failed in ").append("MER001/model.uml").append(EOL);
+	// // expectedOut.append("Automatic merge failed; fix conflicts and then commit the result.").append(EOL)
+	// // .append(EOL);
+	// // assertOutputMessageEnd(expectedOut.toString());
+	// //
+	// // assertNoConflitMarker(projectPath.resolve("model.uml"), projectPath.resolve("model.notation"));
+	// //
+	// // Set<String> expectedConflictingFilePath = Sets
+	// // .newHashSet("MER001/model.uml", "MER001/model.notation");
+	// // assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
+	// }
 
 	/**
 	 * <h3>Use case MER001</h3>
@@ -443,6 +492,65 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		Set<String> expectedConflictingFilePath = Sets
 				.newHashSet("MER002/model.uml", "MER002/model.notation");
 		assertEquals(expectedConflictingFilePath, getGit().status().call().getConflicting());
+
+	}
+
+	/**
+	 * <h3>Test with a setup file that references incorrect projects.</h3>
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testIncorrectProjectToImport() throws Exception {
+		Path existinProjectPath = getRepositoryPath().resolve("MER003");
+		File existingProject = new ProjectBuilder(this) //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
+				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
+				.create(existinProjectPath);
+		String branchA = "branch_a";
+		addAllAndCommit("Initial commit [PapyrusProject3]");
+		createBranch(branchA, "master");
+
+		File notExistinProject = getRepositoryPath().resolve("GhostProject").toFile();
+		File notAProject = getRepositoryPath().resolve("Empty folder").toFile();
+		notAProject.mkdirs();
+
+		getGit().close();
+
+		// Creates Oomph model
+		File userSetupFile = createPapyrusUserOomphModel(existingProject, notExistinProject, notAProject);
+
+		// Mocks that the commands is lauched from the git repository folder.
+		setCmdLocation(getRepositoryPath().toString());
+
+		// Sets args
+		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
+				branchA);
+
+		// Runs command
+		Object result = getApp().start(getContext());
+
+		// Uncomments to displays output
+		printOut();
+		printErr();
+
+		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		assertEquals(1, projectInWorkspace.length);
+
+		StringBuilder expectedOut = new StringBuilder();
+		expectedOut
+				.append("fatal: Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
+				.append(EOL);
+		expectedOut.append(
+				String.join(EOL, notExistinProject.getAbsolutePath(), notAProject.getAbsolutePath())).append(
+				EOL);
+		expectedOut.append("Here is a list to actual project in the workspace:").append(EOL);
+		expectedOut.append(existingProject.getAbsolutePath()).append(EOL);
+		expectedOut.append(EOL);
+
+		assertOutputMessageEnd(expectedOut.toString());
+		assertEquals(Returns.ERROR.code(), result);
 
 	}
 

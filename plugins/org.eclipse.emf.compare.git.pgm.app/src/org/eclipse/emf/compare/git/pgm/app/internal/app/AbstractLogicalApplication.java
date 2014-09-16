@@ -11,11 +11,22 @@
 package org.eclipse.emf.compare.git.pgm.app.internal.app;
 
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +35,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.mapping.RemoteResourceMappingContext;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
@@ -66,6 +78,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.oomph.base.provider.BaseEditUtil;
 import org.eclipse.oomph.internal.setup.SetupPrompter;
+import org.eclipse.oomph.resources.SourceLocator;
 import org.eclipse.oomph.setup.Index;
 import org.eclipse.oomph.setup.Project;
 import org.eclipse.oomph.setup.ProjectCatalog;
@@ -76,6 +89,7 @@ import org.eclipse.oomph.setup.internal.core.SetupContext;
 import org.eclipse.oomph.setup.internal.core.SetupTaskPerformer;
 import org.eclipse.oomph.setup.internal.core.util.ECFURIHandlerImpl;
 import org.eclipse.oomph.setup.internal.core.util.SetupUtil;
+import org.eclipse.oomph.setup.projects.ProjectsImportTask;
 import org.eclipse.oomph.util.Confirmer;
 import org.eclipse.oomph.util.IOUtil;
 import org.kohsuke.args4j.Argument;
@@ -159,11 +173,16 @@ public abstract class AbstractLogicalApplication implements IApplication {
 
 			cleanWorkspace();
 
+			List<ProjectsImportTask> projectToImport = new ArrayList<ProjectsImportTask>();
+
 			// Import Projects
 			for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
 				for (Project project : projectCatalog.getProjects()) {
 					for (SetupTask setupTask : project.getSetupTasks()) {
 						performerStartup.getTriggeredSetupTasks().add(setupTask);
+						if (setupTask instanceof ProjectsImportTask) {
+							projectToImport.add((ProjectsImportTask)setupTask);
+						}
 					}
 				}
 			}
@@ -172,11 +191,65 @@ public abstract class AbstractLogicalApplication implements IApplication {
 
 			validatePerform(performerStartup);
 
-			waitEgitJobs();
+			validateImportedProjects(projectToImport);
 
+			waitEgitJobs();
+		} catch (Die e) {
+			throw e;
 		} catch (Exception e) {
 			progressPageLog.log(e);
 			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying("Error during Oomph operation").ready();
+		}
+	}
+
+	/**
+	 * Validates that all {@link ProjectsImportTask} from the user setup model are really in the
+	 * workspace.
+	 * <p>
+	 * It prevents from perfoming egit operations if all projects are not in the workspace (prevents file by
+	 * file merge if something went wrong).
+	 * </p>
+	 * 
+	 * @param projectsToImport
+	 * @throws Die
+	 */
+	private void validateImportedProjects(List<ProjectsImportTask> projectsToImport) throws Die {
+		// Checks that all project has been correctly imported
+		// Wait for an answer on https://www.eclipse.org/forums/index.php/m/1424615/#msg_1424615
+		// FIXME It only use the absolute location of the project. It may needs extra work if symlink are
+		// involved.
+		Set<String> requiredProjectsPath = new HashSet<String>();
+		for (ProjectsImportTask aImportTask : projectsToImport) {
+			requiredProjectsPath.addAll(Collections2.transform(aImportTask.getSourceLocators(),
+					new Function<SourceLocator, String>() {
+
+						public String apply(SourceLocator input) {
+							return input.getRootFolder();
+						}
+					}));
+		}
+
+		List<IProject> actualProjects = Lists.newArrayList(ResourcesPlugin.getWorkspace().getRoot()
+				.getProjects());
+		Set<String> actualProjectsPath = Sets.newHashSet(Collections2.transform(actualProjects,
+				new Function<IProject, String>() {
+
+					public String apply(IProject input) {
+						return input.getLocation().toString();
+					}
+
+				}));
+		SetView<String> missingProject = Sets.difference(requiredProjectsPath, actualProjectsPath);
+
+		if (!missingProject.isEmpty()) {
+			StringBuilder errorMessage = new StringBuilder();
+			errorMessage
+					.append("Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
+					.append(EOL);
+			errorMessage.append(Joiner.on(EOL).join(missingProject)).append(EOL);
+			errorMessage.append("Here is a list to actual project in the workspace:").append(EOL);
+			errorMessage.append(Joiner.on(EOL).join(actualProjectsPath)).append(EOL);
+			throw new DiesOn(DeathType.FATAL).displaying(errorMessage.toString()).ready();
 		}
 	}
 
@@ -244,6 +317,12 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	}
 
 	/**
+	 * Forces to wait for all EGit operation to terminate.
+	 * <p>
+	 * If this is not done then it might happen that some projects are not connected yet whereas the git
+	 * command is being perfomed.
+	 * </p>
+	 * 
 	 * @throws InterruptedException
 	 */
 	private void waitEgitJobs() throws InterruptedException {

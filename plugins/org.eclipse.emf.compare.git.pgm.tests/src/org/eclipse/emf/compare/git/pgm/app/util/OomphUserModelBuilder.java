@@ -13,7 +13,6 @@ package org.eclipse.emf.compare.git.pgm.app.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.emf.ecore.resource.Resource;
@@ -112,12 +111,6 @@ public class OomphUserModelBuilder {
 			projectCatalog.getSetupTasks().add(workspaceTask);
 		}
 
-		Optional<String> incorrectProject = Stream.of(getProjectPaths()).findAny().filter(
-				projectName -> projectName == null || projectName == "" || !(new File(projectName).exists()));
-
-		if (incorrectProject.isPresent()) {
-			throw new AssertionError(incorrectProject.get() + "is not a valid project");
-		}
 		Stream.of(getProjectPaths()).distinct().forEach(projectPath -> {
 			Project p = SetupFactory.eINSTANCE.createProject();
 			projectCatalog.getProjects().add(p);
