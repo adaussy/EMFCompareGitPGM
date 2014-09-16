@@ -11,6 +11,7 @@
 package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,7 +105,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 
 		String eclipseDir = os.getEclipseDir();
 		String eclipseExecutable = os.getEclipseExecutable();
-		String eclipsePath = new File(performer.getInstallationLocation(), eclipseDir + File.separator
+		String eclipsePath = new File(performer.getInstallationLocation(), eclipseDir + SEP
 				+ eclipseExecutable).getAbsolutePath();
 
 		List<String> command = new ArrayList<String>();

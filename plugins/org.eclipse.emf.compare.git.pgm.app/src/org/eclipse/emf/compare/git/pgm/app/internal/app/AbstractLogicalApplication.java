@@ -12,6 +12,8 @@ package org.eclipse.emf.compare.git.pgm.app.internal.app;
 
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.toFileWithAbsolutePath;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -50,6 +52,7 @@ import org.eclipse.egit.core.synchronize.GitResourceVariantTreeSubscriber;
 import org.eclipse.egit.core.synchronize.GitSubscriberResourceMappingContext;
 import org.eclipse.egit.core.synchronize.dto.GitSynchronizeData;
 import org.eclipse.egit.core.synchronize.dto.GitSynchronizeDataSet;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.ProgressPageLog;
@@ -175,13 +178,25 @@ public abstract class AbstractLogicalApplication implements IApplication {
 
 			List<ProjectsImportTask> projectToImport = new ArrayList<ProjectsImportTask>();
 
-			// Import Projects
+			// Import Projects & execute other startup tasks.
+			final String resourcePath = startupSetupIndex.eResource().getURI().toFileString();
+			final String resourceBasePath = resourcePath.substring(0, resourcePath.lastIndexOf(SEP));
 			for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
 				for (Project project : projectCatalog.getProjects()) {
 					for (SetupTask setupTask : project.getSetupTasks()) {
-						performerStartup.getTriggeredSetupTasks().add(setupTask);
 						if (setupTask instanceof ProjectsImportTask) {
-							projectToImport.add((ProjectsImportTask)setupTask);
+							// Convert location of project to absolute path.
+							EList<SourceLocator> sourceLocators = ((ProjectsImportTask)setupTask)
+									.getSourceLocators();
+							SourceLocator sourceLocator = sourceLocators.get(0);
+							String projectAbsolutePath = toFileWithAbsolutePath(resourceBasePath,
+									sourceLocator.getRootFolder()).toString();
+							ProjectsImportTask importTask = (ProjectsImportTask)EcoreUtil.copy(setupTask);
+							importTask.getSourceLocators().get(0).setRootFolder(projectAbsolutePath);
+							performerStartup.getTriggeredSetupTasks().add(importTask);
+							projectToImport.add(importTask);
+						} else {
+							performerStartup.getTriggeredSetupTasks().add(setupTask);
 						}
 					}
 				}
@@ -203,8 +218,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	}
 
 	/**
-	 * Validates that all {@link ProjectsImportTask} from the user setup model are really in the
-	 * workspace.
+	 * Validates that all {@link ProjectsImportTask} from the user setup model are really in the workspace.
 	 * <p>
 	 * It prevents from perfoming egit operations if all projects are not in the workspace (prevents file by
 	 * file merge if something went wrong).
@@ -293,8 +307,8 @@ public abstract class AbstractLogicalApplication implements IApplication {
 								// Deletes the Oomph import-history.properties to force new import
 								File importHistory = new File(
 										file.getAbsolutePath()
-												+ File.separator
-												+ ".plugins/org.eclipse.oomph.setup.projects/import-history.properties");
+												+ SEP
+												+ ".plugins/org.eclipse.oomph.setup.projects/import-history.properties"); //$NON-NLS-1$
 								if (importHistory.exists()) {
 									IOUtil.deleteBestEffort(importHistory);
 									try {
@@ -342,7 +356,8 @@ public abstract class AbstractLogicalApplication implements IApplication {
 		final Map<?, ?> args = context.getArguments();
 		final String[] appArgs = (String[])args.get("application.args"); //$NON-NLS-1$
 
-		// This time it creates the repository using EGit code in order to add the repository to the EGit cache
+		// This time it creates the repository using EGit code in order to add the repository to the EGit
+		// cache
 		final CmdLineParserRepositoryBuilder clp = CmdLineParserRepositoryBuilder
 				.newEGitRepoBuilderCmdParser(this);
 		try {

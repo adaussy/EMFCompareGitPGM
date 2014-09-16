@@ -13,6 +13,8 @@ package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.FATAL;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.SOFTWARE_ERROR;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.toFileWithAbsolutePath;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -498,7 +500,9 @@ public abstract class AbstractLogicalCommand {
 		final String path;
 		final InstallationTask task = getInstallationTask(index);
 		if (task != null) {
-			path = task.getLocation();
+			String resourcePath = index.eResource().getURI().toFileString();
+			String resourceBasePath = resourcePath.substring(0, resourcePath.lastIndexOf(SEP));
+			path = toFileWithAbsolutePath(resourceBasePath, task.getLocation()).toString();
 		} else {
 			path = null;
 		}
@@ -522,11 +526,11 @@ public abstract class AbstractLogicalCommand {
 					}
 				});
 				if (eclipseFolder.length == 1) {
-					File eclipse = new File(installationPath + File.separator + "eclipse"); //$NON-NLS-1$
+					File eclipse = new File(installationPath + SEP + "eclipse"); //$NON-NLS-1$
 					if (eclipse.exists()) {
 						String[] eclipseExe = eclipse.list(new FilenameFilter() {
 							public boolean accept(File dir, String name) {
-								return "eclipse".equals(name) || "eclipse.exe".equals(name); //$NON-NLS-1$
+								return "eclipse".equals(name) || "eclipse.exe".equals(name); //$NON-NLS-1$ //$NON-NLS-2$
 							}
 						});
 						if (eclipseExe.length == 1) {
@@ -592,10 +596,13 @@ public abstract class AbstractLogicalCommand {
 		final String path;
 		final WorkspaceTask task = getWorkspaceTask(index);
 		if (task != null) {
-			path = task.getLocation();
+			String resourcePath = index.eResource().getURI().toFileString();
+			String resourceBasePath = resourcePath.substring(0, resourcePath.lastIndexOf(SEP));
+			path = toFileWithAbsolutePath(resourceBasePath, task.getLocation()).toString();
 		} else {
 			path = null;
 		}
+
 		return path;
 	}
 

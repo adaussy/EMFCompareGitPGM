@@ -74,7 +74,7 @@ public abstract class AbstractApplicationTest {
 
 	private Git git;
 
-	private String uderDir;
+	private String userDir;
 
 	private PrintStream sysout;
 
@@ -125,7 +125,7 @@ public abstract class AbstractApplicationTest {
 		setGitFolderPath(new File(getRepositoryPath().toFile(), Constants.DOT_GIT));
 		git = Git.init().setDirectory(getRepositoryPath().toFile()).call();
 		// Saves the user.dire property to be able to restore it.( some tests can modify it)
-		uderDir = System.getProperty("user.dir"); //$NON-NLS-1$
+		userDir = System.getProperty("user.dir"); //$NON-NLS-1$
 
 	}
 
@@ -142,7 +142,7 @@ public abstract class AbstractApplicationTest {
 		// repository.dispose();
 		git.close();
 		// Restores system properties
-		setCmdLocation(uderDir);
+		setCmdLocation(userDir);
 
 		File tmpFolder = testTmpFolder.toFile();
 		if (tmpFolder.exists()) {

@@ -2,6 +2,8 @@ package org.eclipse.emf.compare.git.pgm.app.internal.util;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 import org.eclipse.emf.compare.git.pgm.app.Returns;
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
@@ -9,9 +11,9 @@ import org.eclipse.emf.compare.git.pgm.app.internal.exception.Die;
 public class EMFCompareGitPGMUtil {
 
 	/**
-	 * File separtor
+	 * File separator.
 	 */
-	public static final String FS = File.separator;
+	public static final String SEP = File.separator;
 
 	/**
 	 * End of line.
@@ -61,4 +63,36 @@ public class EMFCompareGitPGMUtil {
 
 		return returnCode;
 	}
+
+	/**
+	 * Returns, from a relative path, the corresponding file with an absolute path. This absolute path is
+	 * computed against 'user.dir' system property.
+	 * 
+	 * @param relativePath
+	 *            the relative path for which we want the corresponding file.
+	 * @return the corresponding file with an absolute path.
+	 */
+	public static File toFileWithAbsolutePath(String relativePath) {
+		return toFileWithAbsolutePath(System.getProperty("user.dir"), relativePath); //$NON-NLS-1$
+	}
+
+	/**
+	 * Returns, from a relative path, the corresponding file with an absolute path. This absolute path is
+	 * computed against the given base path.
+	 * 
+	 * @param relativePath
+	 *            the relative path for which we want the corresponding file.
+	 * @return the corresponding file with an absolute path.
+	 */
+	public static File toFileWithAbsolutePath(String basePath, String relativePath) {
+		File file = new File(relativePath);
+		if (!file.isAbsolute()) {
+			Path base = FileSystems.getDefault().getPath(basePath);
+			Path resolvedPath = base.getParent().resolve(file.toPath());
+			Path absolutePath = resolvedPath.normalize();
+			file = absolutePath.toFile();
+		}
+		return file;
+	}
+
 }

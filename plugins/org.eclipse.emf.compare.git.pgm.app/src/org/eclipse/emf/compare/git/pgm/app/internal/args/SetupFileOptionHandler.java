@@ -13,6 +13,7 @@ package org.eclipse.emf.compare.git.pgm.app.internal.args;
 import java.io.File;
 
 import org.eclipse.emf.compare.git.pgm.app.internal.exception.ArgumentValidationError;
+import org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
@@ -43,7 +44,7 @@ public class SetupFileOptionHandler extends FileOptionHandler {
 
 	@Override
 	public int parseArguments(Parameters params) throws CmdLineException {
-		File setupFile = new File(params.getParameter(0));
+		File setupFile = EMFCompareGitPGMUtil.toFileWithAbsolutePath(params.getParameter(0));
 		if (!setupFile.exists()) {
 			throw new ArgumentValidationError(owner, setupFile + " setup file does not exist");
 		}
