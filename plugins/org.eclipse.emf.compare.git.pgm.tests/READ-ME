@@ -1,3 +1,4 @@
 WARNING
-If you want to run the tests inside your IDE please select (in you run configuration)
-the application name "[No Application] - Headless mode"
+If you want to run the tests inside your IDE please select in your run configuration in main tab:
+* The application name "[No Application] - Headless mode"
+* JavaSE-1.8 as Execution Environment
