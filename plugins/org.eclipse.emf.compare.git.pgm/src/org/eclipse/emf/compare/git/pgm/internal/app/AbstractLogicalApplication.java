@@ -323,8 +323,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 										importHistory.createNewFile();
 									} catch (IOException e) {
 										throw new CoreException(
-												new Status(IStatus.ERROR,
-														"org.eclipse.emf.compare.git.pgm.app",
+												new Status(IStatus.ERROR, "org.eclipse.emf.compare.git.pgm",
 														"Unable to delete the file .plugins/org.eclipse.oomph.setup.projects/import-history.properties"));
 									}
 								}

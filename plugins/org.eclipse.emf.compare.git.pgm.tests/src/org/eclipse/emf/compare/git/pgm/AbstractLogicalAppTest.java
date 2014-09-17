@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm;
 
-import org.eclipse.emf.compare.git.pgm.LogicalApp;
 import org.eclipse.emf.compare.git.pgm.internal.cmd.AbstractLogicalCommand;
 import org.eclipse.equinox.app.IApplication;
 

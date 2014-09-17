@@ -13,7 +13,6 @@ package org.eclipse.emf.compare.git.pgm;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.emf.compare.git.pgm.Returns;
 import org.junit.Test;
 
 /**

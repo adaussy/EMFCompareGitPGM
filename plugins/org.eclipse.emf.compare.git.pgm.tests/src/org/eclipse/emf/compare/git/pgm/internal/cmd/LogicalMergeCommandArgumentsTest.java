@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 
 import org.eclipse.emf.compare.git.pgm.Returns;
-import org.eclipse.emf.compare.git.pgm.internal.cmd.LogicalMergeCommand;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.junit.Test;

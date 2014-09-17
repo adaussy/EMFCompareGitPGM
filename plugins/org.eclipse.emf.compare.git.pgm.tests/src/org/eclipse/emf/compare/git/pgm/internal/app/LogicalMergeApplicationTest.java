@@ -28,7 +28,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.AbstractApplicationTest;
 import org.eclipse.emf.compare.git.pgm.Returns;
-import org.eclipse.emf.compare.git.pgm.internal.app.LogicalMergeApplication;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.eclipse.emf.ecore.EObject;

@@ -19,7 +19,6 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.LogicalApp;
 import org.eclipse.emf.compare.git.pgm.Returns;
-import org.eclipse.emf.compare.git.pgm.internal.cmd.LogicalDiffCommand;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;

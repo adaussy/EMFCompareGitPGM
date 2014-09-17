@@ -82,7 +82,7 @@ public class LogicalApp implements IApplication {
 	private final URI environmentSetupURI;
 
 	public LogicalApp() {
-		this(URI.createPlatformPluginURI("/org.eclipse.emf.compare.git.pgm.app/model/luna.setup", true)); //$NON-NLS-1$
+		this(URI.createPlatformPluginURI("/org.eclipse.emf.compare.git.pgm/model/luna.setup", true)); //$NON-NLS-1$
 	}
 
 	public LogicalApp(URI environmentURI) {
