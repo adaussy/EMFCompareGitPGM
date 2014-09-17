@@ -40,6 +40,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.Returns;
 import org.eclipse.emf.compare.git.pgm.internal.ProgressPageLog;
 import org.eclipse.emf.compare.git.pgm.internal.args.CmdLineParserRepositoryBuilder;
+import org.eclipse.emf.compare.git.pgm.internal.args.GitDirHandler;
 import org.eclipse.emf.compare.git.pgm.internal.args.SetupFileOptionHandler;
 import org.eclipse.emf.compare.git.pgm.internal.exception.ArgumentValidationError;
 import org.eclipse.emf.compare.git.pgm.internal.exception.Die;
@@ -115,7 +116,7 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Holds git directory location.
 	 */
-	@Option(name = GIT_DIR_OPT, metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.")
+	@Option(name = GIT_DIR_OPT, metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.", handler = GitDirHandler.class)
 	private String gitdir;
 
 	/**
