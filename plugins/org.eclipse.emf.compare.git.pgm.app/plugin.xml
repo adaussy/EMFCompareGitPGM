@@ -6,7 +6,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.emf.compare.git.pgm.app.LogicalApp">
+               class="org.eclipse.emf.compare.git.pgm.LogicalApp">
          </run>
       </application>
    </extension>
@@ -15,7 +15,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.emf.compare.git.pgm.app.internal.app.LogicalDiffApplication">
+               class="org.eclipse.emf.compare.git.pgm.internal.app.LogicalDiffApplication">
          </run>
       </application>
    </extension>
@@ -24,7 +24,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.emf.compare.git.pgm.app.internal.app.LogicalMergeApplication">
+               class="org.eclipse.emf.compare.git.pgm.internal.app.LogicalMergeApplication">
          </run>
       </application>
    </extension>

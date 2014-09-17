@@ -45,13 +45,13 @@
       <requirement
           name="com.google.guava"/>
       <requirement
-          name="org.eclipse.emf.compare.git.pgm.app.feature.feature.group"/>
+          name="org.eclipse.emf.compare.git.pgm.feature.feature.group"/>
       <repository
           url="http://download.eclipse.org/releases/luna/201406250900"/>
        <repository
           url="http://ericssonegit.ci.obeo.fr:8180/jenkins/job/egit-logical/lastSuccessfulBuild/artifact/org.eclipse.egit.repository/target/repository/"/>
       <repository
-          url="file:/home/adaussy/Work/GitClones/org.eclipse.emf.compare/packaging/org.eclipse.emf.compare.git.pgm.app.update/target/repository/"/>
+          url="file:/home/adaussy/Work/GitClones/org.eclipse.emf.compare/packaging/org.eclipse.emf.compare.git.pgm.update/target/repository/"/>
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
       <repository

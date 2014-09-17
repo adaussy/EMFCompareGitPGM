@@ -45,7 +45,7 @@
       <requirement
           name="com.google.guava"/>
       <requirement
-          name="org.eclipse.emf.compare.git.pgm.app.feature.feature.group"/>
+          name="org.eclipse.emf.compare.git.pgm.feature.feature.group"/>
       <repository
           url="http://download.eclipse.org/releases/luna/201406250900"/>
        <repository

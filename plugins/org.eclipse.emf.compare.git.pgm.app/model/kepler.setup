@@ -45,13 +45,13 @@
       <requirement
           name="com.google.guava"/>
       <requirement
-          name="org.eclipse.emf.compare.git.pgm.app.feature.feature.group"/>
+          name="org.eclipse.emf.compare.git.pgm.feature.feature.group"/>
       <repository
           url="http://download.eclipse.org/releases/kepler/201402280900"/>
       <repository
           url="file:/D:/tests/egitLogical/org.eclipse.egit.repository-3.5.0-SNAPSHOT"/>
       <repository
-          url="file:/D:/tests/LunaRC2/wsOomph/org.eclipse.emf.compare.git.pgm.app.update/"/>
+          url="http://adaussy.github.io/EMFCompareGitPGM/"/>
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
       <repository

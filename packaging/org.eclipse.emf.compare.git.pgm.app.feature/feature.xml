@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.emf.compare.git.pgm.app.feature"
-      label="Feature"
+      id="org.eclipse.emf.compare.git.pgm.feature"
+      label="EMF Compare Git PGM Feature"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
@@ -17,7 +17,7 @@
    </license>
 
    <plugin
-         id="org.eclipse.emf.compare.git.pgm.app"
+         id="org.eclipse.emf.compare.git.pgm"
          download-size="0"
          install-size="0"
          version="0.0.0"

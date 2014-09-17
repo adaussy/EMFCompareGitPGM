@@ -1,4 +1,4 @@
-target "EMF Compare logical merge target platformn"
+target "EMF Compare Git PGM target platform"
 
 with source requirements
 

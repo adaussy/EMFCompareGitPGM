@@ -12,6 +12,6 @@
 
 # Runs the emfcompare-git.pgm application fowarding the arguments.
 emfcompare-git-pgm (){
-	#java -Dequinox.use.ds=true -jar $EMF_COMPARE_GIT_PGM_APP_PATH/plugins/org.eclipse.equinox.launcher_1.3.0.v20140415-2008.jar -consoleLog -nosplash -application emf.compare.git.launcherApp "$@"
-	$EMF_COMPARE_GIT_PGM_APP_PATH/emfcompare-git-pgm -consoleLog -nosplash --launcher.suppressErrors -application emf.compare.git.launcherApp "$@"
+	#java -Dequinox.use.ds=true -jar $EMF_COMPARE_GIT_PGM_PATH/plugins/org.eclipse.equinox.launcher_1.3.0.v20140415-2008.jar -consoleLog -nosplash -application emf.compare.git.launcherApp "$@"
+	$EMF_COMPARE_GIT_PGM_PATH/emfcompare-git-pgm -consoleLog -nosplash --launcher.suppressErrors -application emf.compare.git.launcherApp "$@"
 }

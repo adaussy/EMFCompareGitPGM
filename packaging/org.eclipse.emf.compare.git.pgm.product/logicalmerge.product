@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Logical Merge" uid="org.eclipse.emf.compare.git.pgm.product" id="org.eclipse.emf.compare.git.pgm.product" application="org.eclipse.emf.compare.git.pgm.app.application" useFeatures="false" includeLaunchers="true">
+<product name="Logical Merge" uid="org.eclipse.emf.compare.git.pgm.product" id="org.eclipse.emf.compare.git.pgm.product" application="org.eclipse.emf.compare.git.pgm.application" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -87,7 +87,7 @@
       <plugin id="org.eclipse.emf.common.ui"/>
       <plugin id="org.eclipse.emf.compare"/>
       <plugin id="org.eclipse.emf.compare.edit"/>
-      <plugin id="org.eclipse.emf.compare.git.pgm.app"/>
+      <plugin id="org.eclipse.emf.compare.git.pgm"/>
       <plugin id="org.eclipse.emf.compare.ide"/>
       <plugin id="org.eclipse.emf.compare.ide.ui"/>
       <plugin id="org.eclipse.emf.compare.rcp"/>

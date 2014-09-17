@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Logical Merge
-Bundle-SymbolicName: org.eclipse.emf.compare.git.pgm.app;singleton:=true
+Bundle-Name: EMF Compare Git PGM
+Bundle-SymbolicName: org.eclipse.emf.compare.git.pgm;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -22,10 +22,10 @@ Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  org.kohsuke.args4j;version="[2.0.12,2.1.0)",
  org.kohsuke.args4j.spi;version="[2.0.12,2.1.0)"
-Export-Package: org.eclipse.emf.compare.git.pgm.app;mandatory:="org.eclipse.emf.compare.git.pgm.app";org.eclipse.emf.compare.git.pgm.app:=split;x-friends:="org.eclipse.emf.compare.git.pgm.app.tests",
- org.eclipse.emf.compare.git.pgm.app.internal;uses:="org.eclipse.core.runtime,org.eclipse.oomph.setup.log,org.eclipse.oomph.setup",
- org.eclipse.emf.compare.git.pgm.app.internal.app,
- org.eclipse.emf.compare.git.pgm.app.internal.args,
- org.eclipse.emf.compare.git.pgm.app.internal.cmd;x-friends:="org.eclipse.emf.compare.git.pgm.app.tests",
- org.eclipse.emf.compare.git.pgm.app.internal.exception,
- org.eclipse.emf.compare.git.pgm.app.internal.util
+Export-Package: org.eclipse.emf.compare.git.pgm;mandatory:="org.eclipse.emf.compare.git.pgm.app";org.eclipse.emf.compare.git.pgm.app:=split;x-friends:="org.eclipse.emf.compare.git.pgm.app.tests",
+ org.eclipse.emf.compare.git.pgm.internal;uses:="org.eclipse.core.runtime,org.eclipse.oomph.setup.log,org.eclipse.oomph.setup",
+ org.eclipse.emf.compare.git.pgm.internal.app,
+ org.eclipse.emf.compare.git.pgm.internal.args,
+ org.eclipse.emf.compare.git.pgm.internal.cmd;x-friends:="org.eclipse.emf.compare.git.pgm.app.tests",
+ org.eclipse.emf.compare.git.pgm.internal.exception,
+ org.eclipse.emf.compare.git.pgm.internal.util

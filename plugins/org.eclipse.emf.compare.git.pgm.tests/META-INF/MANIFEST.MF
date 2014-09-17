@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Fragment-Host: org.eclipse.emf.compare.git.pgm.app;bundle-version=1.0.0
-Bundle-Name: Test
-Bundle-SymbolicName: org.eclipse.emf.compare.git.pgm.app.tests;singleton:=true
+Fragment-Host: org.eclipse.emf.compare.git.pgm;bundle-version="1.0.0"
+Bundle-Name: EMF Compare Git PGM Tests
+Bundle-SymbolicName: org.eclipse.emf.compare.git.pgm.tests;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,

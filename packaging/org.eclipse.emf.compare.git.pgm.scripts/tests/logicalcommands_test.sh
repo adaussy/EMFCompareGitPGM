@@ -29,7 +29,7 @@ scriptLocation="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # If the test in run on a linux gtk x86_64
 # TODO improve this
-export EMF_COMPARE_GIT_PGM_APP_PATH="$scriptLocation/../../org.eclipse.emf.compare.git.pgm.product/target/products/org.eclipse.emf.compare.git.pgm.product/linux/gtk/x86_64/emfcompare-git-pgm"
+export EMF_COMPARE_GIT_PGM_PATH="$scriptLocation/../../org.eclipse.emf.compare.git.pgm.product/target/products/org.eclipse.emf.compare.git.pgm.product/linux/gtk/x86_64/emfcompare-git-pgm"
 
 #Unique Id used to build a workspace
 UUID=$(cat /proc/sys/kernel/random/uuid)
