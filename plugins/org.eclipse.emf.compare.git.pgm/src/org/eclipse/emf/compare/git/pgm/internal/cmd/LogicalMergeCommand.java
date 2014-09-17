@@ -92,7 +92,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 					.ready();
 		}
 
-		OS os = performer.getOS();
+		OS os = getPerformer().getOS();
 
 		if (!os.isCurrent()) {
 			return Returns.ERROR.code();
@@ -106,7 +106,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 
 		String eclipseDir = os.getEclipseDir();
 		String eclipseExecutable = os.getEclipseExecutable();
-		String eclipsePath = new File(performer.getInstallationLocation(), eclipseDir + SEP
+		String eclipsePath = new File(getPerformer().getInstallationLocation(), eclipseDir + SEP
 				+ eclipseExecutable).getAbsolutePath();
 
 		List<String> command = new ArrayList<String>();
@@ -121,7 +121,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 			command.add(SHOW_STACK_TRACE_OPT);
 		}
 
-		command.add(repo.getDirectory().getAbsolutePath());
+		command.add(getRepository().getDirectory().getAbsolutePath());
 
 		command.add(this.getSetupFile().getAbsolutePath());
 
@@ -131,9 +131,9 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 			command.add("HEAD"); //$NON-NLS-1$
 		}
 
-		if (performer.getWorkspaceLocation() != null) {
+		if (getPerformer().getWorkspaceLocation() != null) {
 			command.add("-data"); //$NON-NLS-1$
-			command.add(performer.getWorkspaceLocation().toString());
+			command.add(getPerformer().getWorkspaceLocation().toString());
 		}
 
 		command.add("-vmargs"); //$NON-NLS-1$

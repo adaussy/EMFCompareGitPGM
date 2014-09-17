@@ -137,12 +137,12 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Git repository for this command to be executed in.
 	 */
-	protected Repository repo;
+	private Repository repo;
 
 	/**
 	 * SetupTaskPerformer of this command.
 	 */
-	protected SetupTaskPerformer performer;
+	private SetupTaskPerformer performer;
 
 	private ProgressLog progressPageLog;
 
@@ -188,6 +188,15 @@ public abstract class AbstractLogicalCommand {
 	 */
 	protected Repository getRepository() {
 		return repo;
+	}
+
+	/**
+	 * Gets the SetupTaskPerformer.
+	 * 
+	 * @return
+	 */
+	protected SetupTaskPerformer getPerformer() {
+		return performer;
 	}
 
 	/**

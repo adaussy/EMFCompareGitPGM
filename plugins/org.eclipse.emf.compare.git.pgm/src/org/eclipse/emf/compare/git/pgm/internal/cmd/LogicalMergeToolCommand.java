@@ -63,7 +63,7 @@ public class LogicalMergeToolCommand extends AbstractLogicalCommand {
 			throw new DiesOn(DeathType.FATAL).displaying("No conflict to merge").ready();
 		}
 
-		OS os = performer.getOS();
+		OS os = getPerformer().getOS();
 
 		if (!os.isCurrent()) {
 			return Returns.ERROR.code();
@@ -77,15 +77,15 @@ public class LogicalMergeToolCommand extends AbstractLogicalCommand {
 
 		String eclipseDir = os.getEclipseDir();
 		String eclipseExecutable = os.getEclipseExecutable();
-		String eclipsePath = new File(performer.getInstallationLocation(), eclipseDir + SEP
+		String eclipsePath = new File(getPerformer().getInstallationLocation(), eclipseDir + SEP
 				+ eclipseExecutable).getAbsolutePath();
 
 		List<String> command = new ArrayList<String>();
 		command.add(eclipsePath);
 
-		if (performer.getWorkspaceLocation() != null) {
+		if (getPerformer().getWorkspaceLocation() != null) {
 			command.add("-data"); //$NON-NLS-1$
-			command.add(performer.getWorkspaceLocation().toString());
+			command.add(getPerformer().getWorkspaceLocation().toString());
 		}
 
 		command.add("-vmargs"); //$NON-NLS-1$
