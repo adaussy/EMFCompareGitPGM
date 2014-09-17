@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app.internal.app;
 
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.SHOW_STACK_TRACE_OPT;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
@@ -125,7 +126,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	/**
 	 * Holds true if the java stack trace should be displayed in the console if any.
 	 */
-	@Option(name = "--show-stack-trace", usage = "Use this option to display java stack trace in console on error.")
+	@Option(name = SHOW_STACK_TRACE_OPT, usage = "Use this option to display java stack trace in console on error.")
 	private boolean showStackTrace;
 
 	/**

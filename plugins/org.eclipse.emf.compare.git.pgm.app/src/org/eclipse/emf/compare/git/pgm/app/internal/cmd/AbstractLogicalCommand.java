@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.GIT_DIR_OPT;
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.HELP_OPT;
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.SHOW_STACK_TRACE_OPT;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.FATAL;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.SOFTWARE_ERROR;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
@@ -94,7 +97,7 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Holds true if a user has set the help option to true.
 	 */
-	@Option(name = "--help", usage = "Dispays help for this command.", aliases = {"-h" })
+	@Option(name = HELP_OPT, usage = "Dispays help for this command.", aliases = {"-h" })
 	private boolean help;
 
 	/**
@@ -106,13 +109,13 @@ public abstract class AbstractLogicalCommand {
 	/**
 	 * Holds true if the java stack trace should be displayed in the console if any.
 	 */
-	@Option(name = "--show-stack-trace", usage = "Use this option to display java stack trace in console on error.")
+	@Option(name = SHOW_STACK_TRACE_OPT, usage = "Use this option to display java stack trace in console on error.")
 	private boolean showStackTrace;
 
 	/**
 	 * Holds git directory location.
 	 */
-	@Option(name = "--git-dir", metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.")
+	@Option(name = GIT_DIR_OPT, metaVar = "gitFolderPath", usage = "Path to the .git folder of your repository.")
 	private String gitdir;
 
 	/**

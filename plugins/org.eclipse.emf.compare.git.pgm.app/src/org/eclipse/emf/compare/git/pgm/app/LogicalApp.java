@@ -12,6 +12,7 @@ package org.eclipse.emf.compare.git.pgm.app;
 
 import static org.eclipse.emf.compare.git.pgm.app.Returns.COMPLETE;
 import static org.eclipse.emf.compare.git.pgm.app.Returns.ERROR;
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.HELP_OPT;
 import static org.eclipse.emf.compare.git.pgm.app.internal.exception.Die.DeathType.FATAL;
 
 import com.google.common.collect.Lists;
@@ -63,7 +64,7 @@ public class LogicalApp implements IApplication {
 	/**
 	 * Holds true if the user has requested help for this app.
 	 */
-	@Option(name = "--help", usage = "Displays help for this command", aliases = {"-h" })
+	@Option(name = HELP_OPT, usage = "Displays help for this command", aliases = {"-h" })
 	private boolean help;
 
 	/**

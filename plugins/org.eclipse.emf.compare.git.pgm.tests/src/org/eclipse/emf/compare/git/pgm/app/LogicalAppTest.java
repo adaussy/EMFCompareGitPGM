@@ -35,11 +35,9 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 
 	private String getExpectedUsage() {
 		//@formatter:off
-		return "logicalApp --help (-h) --show-stack-trace command [ARG ...]" + EOL
+		return "logicalApp --help (-h) command [ARG ...]" + EOL
 				+ EOL //
-				+ " --help (-h)        : Displays help for this command" + EOL
-				+ " --show-stack-trace : Use this option to display java stack trace in console on" + EOL
-				+ "                      error." + EOL;
+				+ " --help (-h) : Displays help for this command error." + EOL;
 		//@formatter:on
 	}
 
@@ -56,7 +54,7 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 	@Test
 	public void noArgumentTest() throws Exception {
 		Object result = getApp().start(getContext());
-		String extectedOut = "fatal: logicalApp --help (-h) --show-stack-trace command [ARG ...]" + EOL//
+		String extectedOut = "fatal: logicalApp --help (-h) command [ARG ...]" + EOL//
 				+ getExpectedAvailableCommandUsage() //
 				+ EOL;
 		assertOutput(extectedOut);

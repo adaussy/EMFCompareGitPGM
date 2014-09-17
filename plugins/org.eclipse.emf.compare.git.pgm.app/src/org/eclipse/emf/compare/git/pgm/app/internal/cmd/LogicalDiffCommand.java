@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.app.internal.cmd;
 
+import static org.eclipse.emf.compare.git.pgm.app.internal.Options.SHOW_STACK_TRACE_OPT;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
 
 import java.io.File;
@@ -109,7 +110,7 @@ public class LogicalDiffCommand extends AbstractLogicalCommand {
 
 		// Propagates the show stack trace option to the application.
 		if (isShowStackTrace()) {
-			command.add("--show-stack-trace");
+			command.add(SHOW_STACK_TRACE_OPT);
 		}
 
 		command.add(repo.getDirectory().getAbsolutePath());
