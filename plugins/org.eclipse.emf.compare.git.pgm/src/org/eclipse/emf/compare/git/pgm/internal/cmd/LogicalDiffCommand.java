@@ -38,7 +38,8 @@ import org.kohsuke.args4j.Option;
  * </p>
  * <h4>Synopsis</h4>
  * <p>
- * logicaldiff &lt;setup&gt; &lt;commit&gt; [&lt;compareWithCommit&gt;] [ -- &lt;paths...&gt;]
+ * logicaldiff &lt;setup&gt; [--show-stack-trace] [--git-dir &lt;gitDirectory&gt;] &lt;commit&gt;
+ * [&lt;compareWithCommit&gt;] [ -- &lt;paths...&gt;]
  * </p>
  * <h4>Description</h4>
  * <p>

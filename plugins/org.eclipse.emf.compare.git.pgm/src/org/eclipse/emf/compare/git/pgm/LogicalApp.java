@@ -47,7 +47,7 @@ import org.kohsuke.args4j.Option;
  * </p>
  * <h4>Synopsis</h4>
  * <p>
- * logicalapp --help --show-stack-trace --git-dir &lt;gitDirectory&gt; &lt;command&gt; &lt;commandArgs...&gt;
+ * logicalapp --help &lt;command&gt; &lt;commandArgs...&gt;
  * <h4>Description</h4>
  * <p>
  * This application is a command line tool handling logical commands. See {@link CommandFactory} for a
@@ -96,7 +96,7 @@ public class LogicalApp implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		// Prevents vm args if the application exits on somehting different that 0
+		// Prevents vm args if the application exits on something different that 0
 		System.setProperty(IApplicationContext.EXIT_DATA_PROPERTY, "");
 		@SuppressWarnings("rawtypes")
 		final Map args = context.getArguments();

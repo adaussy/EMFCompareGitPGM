@@ -31,7 +31,7 @@ import org.eclipse.oomph.setup.util.OS;
  * </p>
  * <h4>Synopsis</h4>
  * <p>
- * logicalmergetool &lt;setup&gt;
+ * logicalmergetool [--show-stack-trace] &lt;setup&gt;
  * </p>
  * <h4>Description</h4>
  * <p>

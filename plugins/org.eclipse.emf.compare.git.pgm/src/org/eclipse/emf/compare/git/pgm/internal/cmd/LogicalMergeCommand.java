@@ -37,7 +37,7 @@ import org.kohsuke.args4j.Option;
  * </p>
  * <h4>Synopsis</h4>
  * <p>
- * logicalmerge &lt;setup&gt; &lt;commit&gt;
+ * logicalmerge [--show-stack-trace] [--git-dir &lt;gitDirectory&gt;] &lt;setup&gt; &lt;commit&gt;
  * </p>
  * <h4>Description</h4>
  * <p>
