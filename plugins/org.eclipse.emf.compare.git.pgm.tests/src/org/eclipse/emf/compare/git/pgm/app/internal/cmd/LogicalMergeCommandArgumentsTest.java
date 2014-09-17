@@ -216,7 +216,7 @@ public class LogicalMergeCommandArgumentsTest extends AbstractLogicalCommandTest
 				+ EOL; //
 		assertOutput(expectedOut);
 		assertEmptyErrorMessage();
-		assertEquals(Returns.ERROR, result);
+		assertEquals(Returns.ERROR.code(), result);
 	}
 
 	@Test
