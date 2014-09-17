@@ -168,13 +168,17 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	}
 
 	/**
-	 * Create a Oomph setup file be bing able to handle the merge of a Papyrus model.
+	 * Create a Oomph setup file being able to handle the merge of a Papyrus model.
 	 * 
 	 * @param project
 	 * @return
 	 * @throws IOException
 	 */
 	private File createPapyrusUserOomphModel(File... project) throws IOException {
+		return createPapyrusUserOomphModel(getTestTmpFolder().resolve("setup.setup"), project);
+	}
+
+	private File createPapyrusUserOomphModel(Path setupFilePath, File... project) throws IOException {
 		OomphUserModelBuilder userModelBuilder = new OomphUserModelBuilder();
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File userSetupFile = userModelBuilder.setInstallationTaskLocation(oomphFolderPath.toString()) //
@@ -188,7 +192,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 						"org.eclipse.emf.compare.uml2.feature.group",
 						"org.eclipse.emf.compare.diagram.gmf.feature.group",
 						"org.eclipse.emf.compare.diagram.papyrus.feature.group") //
-				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
+				.saveTo(setupFilePath.toString());
 		return userSetupFile;
 	}
 
@@ -544,6 +548,108 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 
 		assertOutputMessageEnd(expectedOut.toString());
 		assertEquals(Returns.ERROR.code(), result);
+
+	}
+
+	/**
+	 * Test importing a project with a real complexe path.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testProjectToImport_complexPath() throws Exception {
+		Path folderWithComplexePath = getRepositoryPath().resolve("Folder with space & special char");
+		folderWithComplexePath.toFile().mkdirs();
+		Path existinProjectPath = folderWithComplexePath.resolve("Project with path and spécial character");
+		File project = new ProjectBuilder(this) //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
+				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
+				.create(existinProjectPath);
+		String branchA = "branch_a";
+		addAllAndCommit("Initial commit [PapyrusProject3]");
+		createBranch(branchA, "master");
+
+		getGit().close();
+
+		// Creates Oomph model
+		File userSetupFile = createPapyrusUserOomphModel(project);
+
+		// Mocks that the commands is lauched from the git repository folder.
+		setCmdLocation(getRepositoryPath().toString());
+
+		// Sets args
+		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
+				branchA);
+
+		// Runs command
+		Object result = getApp().start(getContext());
+
+		// Uncomments to displays output
+		printOut();
+		printErr();
+
+		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		assertEquals(1, projectInWorkspace.length);
+
+		assertEquals(Returns.COMPLETE.code(), result);
+		StringBuilder expectedOut = new StringBuilder();
+		expectedOut.append("Performing setup task Projects Import Task").append(EOL);
+		expectedOut.append("Importing projects from ").append(project.getAbsolutePath()).append(EOL);
+		expectedOut.append(project.toPath().getFileName().toString()).append(EOL);
+		expectedOut.append("Already up to date.");
+	}
+
+	/**
+	 * Test using a setup file using a complex path
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testSetupFile_complexPath() throws Exception {
+
+		Path existinProjectPath = getRepositoryPath().resolve("MER003");
+		File project = new ProjectBuilder(this) //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
+				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
+				.create(existinProjectPath);
+		String branchA = "branch_a";
+		addAllAndCommit("Initial commit [PapyrusProject3]");
+		createBranch(branchA, "master");
+
+		getGit().close();
+
+		Path folderWithComplexePath = getRepositoryPath().resolve("Folder with space & special char");
+		folderWithComplexePath.toFile().mkdirs();
+
+		// Creates Oomph model
+		File userSetupFile = createPapyrusUserOomphModel(folderWithComplexePath
+				.resolve("Setup file with spaces.setup"), project);
+
+		// Mocks that the commands is lauched from the git repository folder.
+		setCmdLocation(getRepositoryPath().toString());
+
+		// Sets args
+		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
+				branchA);
+
+		// Runs command
+		Object result = getApp().start(getContext());
+
+		// Uncomments to displays output
+		printOut();
+		printErr();
+
+		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		assertEquals(1, projectInWorkspace.length);
+
+		assertEquals(Returns.COMPLETE.code(), result);
+		StringBuilder expectedOut = new StringBuilder();
+		expectedOut.append("Performing setup task Projects Import Task").append(EOL);
+		expectedOut.append("Importing projects from ").append(project.getAbsolutePath()).append(EOL);
+		expectedOut.append(project.toPath().getFileName().toString()).append(EOL);
+		expectedOut.append("Already up to date.");
 
 	}
 
