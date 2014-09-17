@@ -37,7 +37,7 @@ public class LogicalAppTest extends AbstractLogicalAppTest {
 		//@formatter:off
 		return "logicalApp --help (-h) command [ARG ...]" + EOL
 				+ EOL //
-				+ " --help (-h) : Displays help for this command error." + EOL;
+				+ " --help (-h) : Displays help for this command." + EOL;
 		//@formatter:on
 	}
 

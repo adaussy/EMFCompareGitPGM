@@ -64,7 +64,7 @@ public class LogicalApp implements IApplication {
 	/**
 	 * Holds true if the user has requested help for this app.
 	 */
-	@Option(name = HELP_OPT, usage = "Displays help for this command", aliases = {"-h" })
+	@Option(name = HELP_OPT, usage = "Displays help for this command.", aliases = {"-h" })
 	private boolean help;
 
 	/**
