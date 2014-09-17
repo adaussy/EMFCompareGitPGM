@@ -59,12 +59,13 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 	}
 
 	@Test
-	public void missingSetupFilTest() throws Exception {
+	public void missingSetupFileTest() throws Exception {
 		setCmdLocation(getRepositoryPath().toString());
 		// Does not give a setup file
+		String missingSetupFilePath = getTestTmpFolder().resolve("master").toString();
 		getContext().addArg(getCommandName(), "master");
 		Object result = getApp().start(getContext());
-		String expectedOut = "fatal: master setup file does not exist" + EOL; //
+		String expectedOut = "fatal: " + missingSetupFilePath + " setup file does not exist" + EOL; //
 		assertOutput(expectedOut);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.ERROR.code(), result);
