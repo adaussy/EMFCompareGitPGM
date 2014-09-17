@@ -49,7 +49,15 @@ public class ProgressPageLog implements ProgressLog {
 	 * {@inheritDoc}.
 	 */
 	public void log(String line, boolean filter) {
-		out.println(line);
+		/*
+		 * No documentation is available on the filter parameter. However empirical tests show that filter is
+		 * set to false when logging IStatus or exceptions. In our case we do not want to show that kind of
+		 * information on the progress page log. It will be displayed later on the application is the
+		 * --show-stack-trace option is set to true.
+		 */
+		if (filter) {
+			out.println(line);
+		}
 	}
 
 	/**

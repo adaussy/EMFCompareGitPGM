@@ -115,6 +115,11 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 		command.add("-application"); //$NON-NLS-1$
 		command.add("emf.compare.git.logicalmerge"); //$NON-NLS-1$
 
+		// Propagates the show stack trace option to the application.
+		if (isShowStackTrace()) {
+			command.add("--show-stack-trace"); //$NON-NLS-1$
+		}
+
 		command.add(repo.getDirectory().getAbsolutePath());
 
 		command.add(this.getSetupFile().getAbsolutePath());

@@ -38,7 +38,7 @@ public abstract class AbstractLogicalCommandTest extends AbstractLogicalAppTest 
 	@Test
 	public void helpLogicalCommandTest() throws Exception {
 		// Asks command help
-		getContext().addArg("--show-stack-trace", getCommandName(), "--help");
+		getContext().addArg(getCommandName(), "--show-stack-trace", "--help");
 		Object result = getApp().start(getContext());
 		assertOutput(getExpectedUsage());
 		assertEmptyErrorMessage();

@@ -15,6 +15,9 @@ import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGM
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
+import java.util.List;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -163,8 +167,20 @@ public abstract class AbstractApplicationTest {
 
 	protected void assertOutputMessageEnd(String expected) {
 		String outputStreamContent = outputStream.toString();
-		assertTrue("The output message should end with: " + EOL + expected + EOL + "but was: " + EOL
-				+ outputStreamContent, outputStreamContent.endsWith(expected));
+		// -1 since we want to keep empty lines
+		List<String> expectedLines = Lists.newArrayList(expected.split(EOL, -1));
+		List<String> actualLines = Lists.newArrayList(outputStreamContent.split(EOL, -1));
+		List<String> actualEndingLine = actualLines.subList(actualLines.size() - expectedLines.size(),
+				actualLines.size());
+		for (int i = 0; i < expectedLines.size(); i++) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("The line number ").append(i).append(
+					" of the actual message did not match the related line in expected message:").append(EOL);
+			stringBuilder.append(expected).append(EOL);
+			stringBuilder.append("Actual:").append(EOL);
+			stringBuilder.append(Joiner.on(EOL).join(actualEndingLine)).append(EOL);
+			assertEquals(stringBuilder.toString(), expectedLines.get(i), actualEndingLine.get(i));
+		}
 	}
 
 	protected void assertEmptyErrorMessage() {

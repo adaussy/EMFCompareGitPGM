@@ -14,10 +14,13 @@ import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGM
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.SEP;
 import static org.eclipse.emf.compare.git.pgm.app.internal.util.EMFCompareGitPGMUtil.toFileWithAbsolutePath;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.FunctionCatalog.FILE_TO_PATH;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.FunctionCatalog.IPROJECT_TO_FILE;
+import static org.eclipse.emf.compare.git.pgm.app.internal.util.FunctionCatalog.SOURCELOCATOR_TO_FILE;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -97,6 +100,7 @@ import org.eclipse.oomph.util.Confirmer;
 import org.eclipse.oomph.util.IOUtil;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.Option;
 
 /**
  * Abstract class for any logical application.
@@ -117,6 +121,12 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	 */
 	@Argument(index = 1, metaVar = "<setup>", required = true, usage = "Path to the setup file. The setup file is a Oomph model.", handler = SetupFileOptionHandler.class)
 	protected File setupFile;
+
+	/**
+	 * Holds true if the java stack trace should be displayed in the console if any.
+	 */
+	@Option(name = "--show-stack-trace", usage = "Use this option to display java stack trace in console on error.")
+	private boolean showStackTrace;
 
 	/**
 	 * Logs any message from oomph.
@@ -212,8 +222,13 @@ public abstract class AbstractLogicalApplication implements IApplication {
 		} catch (Die e) {
 			throw e;
 		} catch (Exception e) {
-			progressPageLog.log(e);
-			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying("Error during Oomph operation").ready();
+			final String message;
+			if (e instanceof CoreException) {
+				message = EMFCompareGitPGMUtil.getStatusMessage(((CoreException)e).getStatus());
+			} else {
+				message = "Error during Oomph operation";
+			}
+			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying(message).ready();
 		}
 	}
 
@@ -228,41 +243,33 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	 * @throws Die
 	 */
 	private void validateImportedProjects(List<ProjectsImportTask> projectsToImport) throws Die {
-		// Checks that all project has been correctly imported
-		// Wait for an answer on https://www.eclipse.org/forums/index.php/m/1424615/#msg_1424615
-		// FIXME It only use the absolute location of the project. It may needs extra work if symlink are
-		// involved.
-		Set<String> requiredProjectsPath = new HashSet<String>();
+		// Checks that all projects has been correctly imported.
+		// Oomph does not exploded if the reference of the SourceLocator point to an existing file which does
+		// not contain
+		// any project. In our case it would better to prevent any Git operation if the setup file is not
+		// completly valid.
+		Set<File> requiredProjectsFiles = new HashSet<File>();
 		for (ProjectsImportTask aImportTask : projectsToImport) {
-			requiredProjectsPath.addAll(Collections2.transform(aImportTask.getSourceLocators(),
-					new Function<SourceLocator, String>() {
-
-						public String apply(SourceLocator input) {
-							return input.getRootFolder();
-						}
-					}));
+			requiredProjectsFiles.addAll(Collections2.transform(aImportTask.getSourceLocators(),
+					SOURCELOCATOR_TO_FILE));
 		}
 
 		List<IProject> actualProjects = Lists.newArrayList(ResourcesPlugin.getWorkspace().getRoot()
 				.getProjects());
-		Set<String> actualProjectsPath = Sets.newHashSet(Collections2.transform(actualProjects,
-				new Function<IProject, String>() {
-
-					public String apply(IProject input) {
-						return input.getLocation().toString();
-					}
-
-				}));
-		SetView<String> missingProject = Sets.difference(requiredProjectsPath, actualProjectsPath);
+		Set<File> actualProjectsFile = Sets.newHashSet(Collections2.transform(actualProjects,
+				IPROJECT_TO_FILE));
+		SetView<File> missingProject = Sets.difference(requiredProjectsFiles, actualProjectsFile);
 
 		if (!missingProject.isEmpty()) {
 			StringBuilder errorMessage = new StringBuilder();
 			errorMessage
 					.append("Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
 					.append(EOL);
-			errorMessage.append(Joiner.on(EOL).join(missingProject)).append(EOL);
+			errorMessage.append(Joiner.on(EOL).join(Iterables.transform(missingProject, FILE_TO_PATH)))
+					.append(EOL);
 			errorMessage.append("Here is a list to actual project in the workspace:").append(EOL);
-			errorMessage.append(Joiner.on(EOL).join(actualProjectsPath)).append(EOL);
+			errorMessage.append(Joiner.on(EOL).join(Iterables.transform(actualProjectsFile, FILE_TO_PATH)))
+					.append(EOL);
 			throw new DiesOn(DeathType.FATAL).displaying(errorMessage.toString()).ready();
 		}
 	}
@@ -373,7 +380,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 			performStartup();
 			return performGitCommand();
 		} catch (Die e) {
-			Integer returnCode = EMFCompareGitPGMUtil.handleDieError(e, true);
+			Integer returnCode = EMFCompareGitPGMUtil.handleDieError(e, showStackTrace);
 			return returnCode;
 		} finally {
 			dispose();

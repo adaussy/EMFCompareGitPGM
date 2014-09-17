@@ -501,7 +501,7 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testIncorrectProjectToImport() throws Exception {
+	public void testIncorrectProjectToImport_NotExistingProject() throws Exception {
 		Path existinProjectPath = getRepositoryPath().resolve("MER003");
 		File existingProject = new ProjectBuilder(this) //
 				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
@@ -513,13 +513,11 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		createBranch(branchA, "master");
 
 		File notExistinProject = getRepositoryPath().resolve("GhostProject").toFile();
-		File notAProject = getRepositoryPath().resolve("Empty folder").toFile();
-		notAProject.mkdirs();
 
 		getGit().close();
 
 		// Creates Oomph model
-		File userSetupFile = createPapyrusUserOomphModel(existingProject, notExistinProject, notAProject);
+		File userSetupFile = createPapyrusUserOomphModel(existingProject, notExistinProject);
 
 		// Mocks that the commands is lauched from the git repository folder.
 		setCmdLocation(getRepositoryPath().toString());
@@ -539,12 +537,62 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		assertEquals(1, projectInWorkspace.length);
 
 		StringBuilder expectedOut = new StringBuilder();
+		expectedOut.append("fatal: Projects Import Analysis Projects Import Analysis of '").append(
+				notExistinProject.getAbsolutePath()).append("'").append(EOL);
+		expectedOut.append("  The root folder '").append(notExistinProject.getAbsolutePath()).append(
+				"' doesn't exist").append(EOL).append(EOL);
+
+		assertOutputMessageEnd(expectedOut.toString());
+		assertEquals(Returns.ERROR.code(), result);
+
+	}
+
+	/**
+	 * <h3>Test with a setup file that references an empty folder.</h3>
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testIncorrectProjectToImport_NotAProject() throws Exception {
+		Path existinProjectPath = getRepositoryPath().resolve("MER003");
+		File existingProject = new ProjectBuilder(this) //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
+				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
+				.create(existinProjectPath);
+		String branchA = "branch_a";
+		addAllAndCommit("Initial commit [PapyrusProject3]");
+		createBranch(branchA, "master");
+
+		File notAProject = getRepositoryPath().resolve("Empty folder").toFile();
+		notAProject.mkdirs();
+
+		getGit().close();
+
+		// Creates Oomph model
+		File userSetupFile = createPapyrusUserOomphModel(existingProject, notAProject);
+
+		// Mocks that the commands is lauched from the git repository folder.
+		setCmdLocation(getRepositoryPath().toString());
+
+		// Sets args
+		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
+				branchA);
+
+		// Runs command
+		Object result = getApp().start(getContext());
+
+		// Uncomments to displays output
+		printOut();
+		printErr();
+
+		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		assertEquals(1, projectInWorkspace.length);
+		StringBuilder expectedOut = new StringBuilder();
 		expectedOut
 				.append("fatal: Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
 				.append(EOL);
-		expectedOut.append(
-				String.join(EOL, notExistinProject.getAbsolutePath(), notAProject.getAbsolutePath())).append(
-				EOL);
+		expectedOut.append(notAProject.getAbsolutePath()).append(EOL);
 		expectedOut.append("Here is a list to actual project in the workspace:").append(EOL);
 		expectedOut.append(existingProject.getAbsolutePath()).append(EOL);
 		expectedOut.append(EOL);

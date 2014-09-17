@@ -67,12 +67,6 @@ public class LogicalApp implements IApplication {
 	private boolean help;
 
 	/**
-	 * Holds true if the java stack trace should be displayed in the console if any.
-	 */
-	@Option(name = "--show-stack-trace", usage = "Use this option to display java stack trace in console on error.")
-	private boolean showStackTrace;
-
-	/**
 	 * Holds the logical command to be run.
 	 */
 	@Argument(index = 0, metaVar = "cmd", required = true, handler = LogicalCommandHandler.class)
@@ -113,6 +107,12 @@ public class LogicalApp implements IApplication {
 		try {
 			returnCode = execute(appArg);
 		} catch (Die error) {
+			final boolean showStackTrace;
+			if (logicalCommand != null) {
+				showStackTrace = logicalCommand.isShowStackTrace();
+			} else {
+				showStackTrace = false;
+			}
 			return EMFCompareGitPGMUtil.handleDieError(error, showStackTrace);
 		}
 
@@ -156,8 +156,6 @@ public class LogicalApp implements IApplication {
 			printWritter.close();
 			throw new DiesOn(FATAL).displaying(out.toString()).ready();
 		}
-		// The show stack trace option can either be use in the global app or in the local command
-		showStackTrace |= logicalCommand.isShowStackTrace();
 
 		logicalCommand.build(arguments, environmentSetupURI);
 
