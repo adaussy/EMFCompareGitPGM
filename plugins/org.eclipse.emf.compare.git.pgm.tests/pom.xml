@@ -18,61 +18,51 @@
 	<build>
 		<plugins>
 			<plugin>
-				<!-- We need to add some extra component to the test platform -->
-				<!-- This the new way to do it (https://bugs.eclipse.org/bugs/show_bug.cgi?id=436617#c11,https://bugs.eclipse.org/bugs/show_bug.cgi?id=438559,http://comments.gmane.org/gmane.comp.ide.eclipse.tycho.user/4154) -->
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-				<!-- Needed since the tests are now written with Java 8 -->
+					<!-- Needed since the tests are now written with Java 8 -->
 					<executionEnvironment>JavaSE-1.8</executionEnvironment>
-<!-- 					<target> -->
-<!-- 						<artifact> -->
-<!-- 							<groupId>org.eclipse.emf.compare.git.pgm</groupId> -->
-<!-- 							<artifactId>org.eclipse.emf.compare.git.pgm.parent</artifactId> -->
-<!-- 							<version>${parent-version}</version> -->
-<!-- 							<classifier>targetPlatforms/org.eclipse.emf.compare.git.pgm</classifier> -->
-<!-- 						</artifact> -->
-<!-- 					</target> -->
-<!-- 					<dependency-resolution> -->
-<!-- 						<extraRequirements> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.emf.compare.uml2</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.emf.compare.ide.ui</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.uml2</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.gmf.runtime.notation</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.emf.compare.diagram</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.emf.compare.diagram.papyrus</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 							<requirement> -->
-<!-- 								<type>eclipse-feature</type> -->
-<!-- 								<id>org.eclipse.egit</id> -->
-<!-- 								<versionRange>0.0.0</versionRange> -->
-<!-- 							</requirement> -->
-<!-- 						</extraRequirements> -->
-<!-- 					</dependency-resolution> -->
+					<dependency-resolution>
+						<!-- The test suite AllApplicationTest needs a provisioned platform 
+							with the following components. This is the way to force those components 
+							to be installed in the runtime test platform since tycho 0.21.0. For more 
+							information see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=436617#c11, 
+							https://bugs.eclipse.org/bugs/show_bug.cgi?id=438559, http://comments.gmane.org/gmane.comp.ide.eclipse.tycho.user/4154 -->
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.emf.compare.uml2</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.emf.compare.ide.ui</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.uml2</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.gmf.runtime.notation</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.emf.compare.diagram.papyrus</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.egit</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -80,12 +70,17 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<application>org.eclipse.pde.junit.runtime.coretestapplication</application>
+					<useUIHarness>false</useUIHarness>
+					<useUIThread>false</useUIThread>
 					<includes>
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllCommandLineArguementTests.java</include>
-						<include>org/eclipse/emf/compare/git/pgm/suite/IntegrationTests</include>
+						<!-- Not included since the lunaIntegrationTest.setup reference a local update site -->
+						<!-- <include>org/eclipse/emf/compare/git/pgm/suite/AllIntegrationTests</include> -->
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllLogicalApplicationTests.java</include>
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllUtilTests.java</include>
 					</includes>
+
 				</configuration>
 			</plugin>
 		</plugins>

@@ -35,17 +35,18 @@ public class UtilTests {
 	public void testRelativePath() throws IOException {
 		String systemTmpDir = System.getProperty("java.io.tmpdir");
 		Path systemTmpDirPath = Paths.get(systemTmpDir);
-		Path d = systemTmpDirPath.resolve("a" + SEP + "b" + SEP + "c" + SEP + "d");
+		Path d = systemTmpDirPath.resolve("a").resolve("b").resolve("c").resolve("d");
 		File file = toFileWithAbsolutePath(d.toString(), PARENT + SEP + PARENT + SEP + "c");
-		assertEquals(systemTmpDir + "a" + SEP + "b" + SEP + "c", file.toString());
+		assertEquals(systemTmpDirPath.resolve("a").resolve("b").resolve("c").toString(), file.toString());
 	}
 
 	@Test
 	public void testRelativePath2() throws IOException {
 		String systemTmpDir = System.getProperty("java.io.tmpdir");
 		Path systemTmpDirPath = Paths.get(systemTmpDir);
-		Path d = systemTmpDirPath.resolve("a" + SEP + "b" + SEP + "c" + SEP + "d");
+		Path d = systemTmpDirPath.resolve("a").resolve("b").resolve("c").resolve("d");
 		File file = toFileWithAbsolutePath(d.toString(), CURRENT + SEP + PARENT + SEP + "d");
-		assertEquals(systemTmpDir + "a" + SEP + "b" + SEP + "c" + SEP + "d", file.toString());
+		assertEquals(systemTmpDirPath.resolve("a").resolve("b").resolve("c").resolve("d").toString(), file
+				.toString());
 	}
 }

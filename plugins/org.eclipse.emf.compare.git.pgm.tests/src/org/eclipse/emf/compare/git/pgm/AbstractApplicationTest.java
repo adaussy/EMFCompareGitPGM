@@ -58,7 +58,7 @@ import org.junit.Before;
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
 public abstract class AbstractApplicationTest {
-	private static final String TMP_DIRECTORY_PREFIX = "logicalAppTestFolder"; //$NON-NLS-1$
+	private static final String TMP_DIRECTORY_PREFIX = "emfcompare-git-pgm"; //$NON-NLS-1$
 
 	private static final String REPO_PREFIX = "Repo_"; //$NON-NLS-1$
 

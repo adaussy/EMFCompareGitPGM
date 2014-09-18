@@ -121,6 +121,7 @@ public class LogicalDiffApplication extends AbstractLogicalApplication {
 
 			if (files.isEmpty()) {
 				System.out.println("No difference to display.");
+				return Returns.COMPLETE.code();
 			}
 
 			for (IFile file : files) {

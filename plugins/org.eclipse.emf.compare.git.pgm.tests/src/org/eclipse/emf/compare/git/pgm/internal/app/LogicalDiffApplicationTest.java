@@ -8,47 +8,51 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.git.pgm.internal.cmd;
+package org.eclipse.emf.compare.git.pgm.internal.app;
 
-import static org.eclipse.emf.compare.git.pgm.internal.cmd.LogicalMergeToolCommand.LOGICAL_MERGE_TOOL_CMD_NAME;
-import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.nio.file.Path;
 
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.compare.git.pgm.AbstractLogicalAppTest;
-import org.eclipse.emf.compare.git.pgm.LogicalApp;
+import org.eclipse.emf.compare.git.pgm.AbstractApplicationTest;
 import org.eclipse.emf.compare.git.pgm.Returns;
-import org.eclipse.emf.compare.git.pgm.suite.AllIntegrationTests;
+import org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;
 import org.junit.Test;
 
 /**
- * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * Tests the logical diff application.
  * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
-@SuppressWarnings("nls")
-public class LogicalMergeToolIntegrationTest extends AbstractLogicalAppTest {
+public class LogicalDiffApplicationTest extends AbstractApplicationTest {
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.eclipse.emf.compare.git.pgm.AbstractApplicationTest#buildApp()
+	 */
 	@Override
 	protected IApplication buildApp() {
-		return new LogicalApp(URI.createURI(
-				"platform:/fragment/org.eclipse.emf.compare.git.pgm.tests/model/lunaIntegrationTest.setup",
-				false));
+		return new LogicalDiffApplication();
 	}
 
+	/**
+	 * Test if there is no difference to display then the software display the "No differende to display"
+	 * message.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void notInConlictState() throws Exception {
+	public void nothingToDo() throws Exception {
 		setCmdLocation(getRepositoryPath().toString());
 
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File newSetupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
+				.setInstallationTaskLocation(getTestTmpFolder().resolve("oomphFolder").toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
@@ -58,13 +62,13 @@ public class LogicalMergeToolIntegrationTest extends AbstractLogicalAppTest {
 
 		addAllAndCommit("First commit");
 
-		// Tests referencing a commit using the name of a branch
-		getContext().addArg(LOGICAL_MERGE_TOOL_CMD_NAME, newSetupFile.getAbsolutePath());
+		// No reference
+		getContext().addArg(getRepositoryPath().resolve(".git").toString(), newSetupFile.getAbsolutePath(),
+				"master", "master");
 		Object result = getApp().start(getContext());
-		String expectedOut = "fatal: No conflict to merge" + EOL; //
-		assertOutputMessageEnd(expectedOut);
+		assertOutputMessageEnd("No difference to display." + EMFCompareGitPGMUtil.EOL);
 		assertEmptyErrorMessage();
-		assertEquals(Returns.ERROR.code(), result);
+		assertEquals(Returns.COMPLETE.code(), result);
 	}
 
 }

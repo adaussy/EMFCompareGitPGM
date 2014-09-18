@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.internal.cmd;
 
+import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.LogicalApp;
 import org.eclipse.emf.compare.git.pgm.Returns;
+import org.eclipse.emf.compare.git.pgm.suite.AllIntegrationTests;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;
@@ -45,7 +47,7 @@ public class LogicalDiffIntegrationTest extends AbstractLogicalAppTest {
 
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File newSetupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(oomphFolderPath.toString()) //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
@@ -59,7 +61,7 @@ public class LogicalDiffIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg(LogicalDiffCommand.LOGICAL_DIFF_CMD_NAME, newSetupFile.getAbsolutePath(),
 				"master", "master");
 		Object result = getApp().start(getContext());
-		assertOutputMessageEnd("No difference to display.");
+		assertOutputMessageEnd("No difference to display." + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
 	}

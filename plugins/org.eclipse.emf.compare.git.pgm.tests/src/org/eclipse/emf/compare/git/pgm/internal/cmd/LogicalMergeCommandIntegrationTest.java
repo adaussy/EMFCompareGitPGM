@@ -23,6 +23,8 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.git.pgm.AbstractLogicalAppTest;
 import org.eclipse.emf.compare.git.pgm.LogicalApp;
 import org.eclipse.emf.compare.git.pgm.Returns;
+import org.eclipse.emf.compare.git.pgm.internal.Options;
+import org.eclipse.emf.compare.git.pgm.suite.AllIntegrationTests;
 import org.eclipse.emf.compare.git.pgm.util.OomphUserModelBuilder;
 import org.eclipse.emf.compare.git.pgm.util.ProjectBuilder;
 import org.eclipse.equinox.app.IApplication;
@@ -48,7 +50,7 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 	public void alreadyUpToDateTest() throws Exception {
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File newSetupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(oomphFolderPath.toString()) //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
@@ -60,10 +62,9 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		addAllAndCommit("First commit");
 
 		// Tests referencing a commit using the name of a branch
-		getContext().addArg("--show-stack-trace", LOGICAL_MERGE_CMD_NAME, newSetupFile.getAbsolutePath(),
-				"master");
+		getContext().addArg(LOGICAL_MERGE_CMD_NAME, newSetupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
-		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
 	}
@@ -73,7 +74,7 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File setupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(oomphFolderPath.toString()) //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
@@ -87,7 +88,7 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		// Tests referencing a commit using its id.
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), rev.getId().name());
 		Object result = getApp().start(getContext());
-		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
@@ -107,15 +108,15 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File setupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(oomphFolderPath.toString()) //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
 		// Provides the repository using parameter
-		getContext().addArg("--git-dir", getGitFolderPath().toString(), LOGICAL_MERGE_CMD_NAME,
+		getContext().addArg(LOGICAL_MERGE_CMD_NAME, Options.GIT_DIR_OPT, getGitFolderPath().toString(),
 				setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
-		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
@@ -124,7 +125,7 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 	}
 
 	@Test
-	public void alreadyUpdateToDateOnRepoSubFolderTest() throws Exception {
+	public void alreadyUpToDateOnRepoSubFolderTest() throws Exception {
 		// Creates some content for the first commit.
 		File project = new ProjectBuilder(this) //
 				.addNewFileContent("newFoler/newFile.txt", "some content") //
@@ -135,13 +136,13 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
 		File setupFile = new OomphUserModelBuilder() //
-				.setInstallationTaskLocation(oomphFolderPath.toString()) //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
 				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
 				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
 
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
-		assertOutputMessageEnd("Already up to date" + EOL + EOL);
+		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
 		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
