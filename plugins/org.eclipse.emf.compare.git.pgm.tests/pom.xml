@@ -84,6 +84,7 @@
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllCommandLineArguementTests.java</include>
 						<include>org/eclipse/emf/compare/git/pgm/suite/IntegrationTests</include>
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllLogicalApplicationTests.java</include>
+						<include>org/eclipse/emf/compare/git/pgm/suite/AllUtilTests.java</include>
 					</includes>
 				</configuration>
 			</plugin>

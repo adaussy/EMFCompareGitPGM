@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.internal.app;
 
+import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.CURRENT;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
+import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.PARENT;
+import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.SEP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -627,12 +630,69 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		File userSetupFile = createPapyrusUserOomphModel(folderWithComplexePath
 				.resolve("Setup file with spaces.setup"), project);
 
-		// Mocks that the commands is lauched from the git repository folder.
+		// Mocks that the commands is launched from the git repository folder.
 		setCmdLocation(getRepositoryPath().toString());
 
 		// Sets args
 		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
 				branchA);
+
+		// Runs command
+		Object result = getApp().start(getContext());
+
+		// Uncomments to displays output
+		printOut();
+		printErr();
+
+		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		assertEquals(1, projectInWorkspace.length);
+
+		assertEquals(Returns.COMPLETE.code(), result);
+		StringBuilder expectedOut = new StringBuilder();
+		expectedOut.append("Performing setup task Projects Import Task").append(EOL);
+		expectedOut.append("Importing projects from ").append(project.getAbsolutePath()).append(EOL);
+		expectedOut.append(project.toPath().getFileName().toString()).append(EOL);
+		expectedOut.append("Already up to date.");
+
+	}
+
+	/**
+	 * Test using a setup file using a complex path
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testRelativePaths() throws Exception {
+
+		Path existinProjectPath = getRepositoryPath().resolve("MER003");
+		File project = new ProjectBuilder(this) //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
+				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
+				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
+				.create(existinProjectPath);
+		String branchA = "branch_a";
+		addAllAndCommit("Initial commit [PapyrusProject3]");
+		createBranch(branchA, "master");
+
+		getGit().close();
+
+		Path folder = getRepositoryPath().resolve("a" + SEP + "b" + SEP + "c");
+		folder.toFile().mkdirs();
+
+		// Creates Oomph model
+		createPapyrusUserOomphModel(folder.resolve("setup.setup"), project);
+
+		// Mocks that the commands is launched from the git repository folder.
+		setCmdLocation(getRepositoryPath().toString());
+
+		// Args : relative paths
+		String repoPathLastSegment = getRepositoryPath().toString().substring(
+				getRepositoryPath().toString().lastIndexOf(SEP) + 1);
+		String gitRelativePath = PARENT + SEP + repoPathLastSegment + SEP + ".git";
+		String setupRelativePath = CURRENT + SEP + "a" + SEP + "b" + SEP + "c" + SEP + "setup.setup";
+
+		// Sets args
+		getContext().addArg(gitRelativePath, setupRelativePath, branchA);
 
 		// Runs command
 		Object result = getApp().start(getContext());

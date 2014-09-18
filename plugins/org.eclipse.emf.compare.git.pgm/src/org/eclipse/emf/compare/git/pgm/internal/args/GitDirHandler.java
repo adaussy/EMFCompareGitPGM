@@ -12,6 +12,7 @@ package org.eclipse.emf.compare.git.pgm.internal.args;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
@@ -51,7 +52,8 @@ public class GitDirHandler extends StringOptionHandler {
 	@Override
 	public int parseArguments(Parameters params) throws CmdLineException {
 		String dir = params.getParameter(0);
-		((CmdLineParserRepositoryBuilder)owner).setGitDir(dir);
+		String absoluteDir = EMFCompareGitPGMUtil.toFileWithAbsolutePath(dir).toString();
+		((CmdLineParserRepositoryBuilder)owner).setGitDir(absoluteDir);
 		return 1;
 	}
 

@@ -29,6 +29,16 @@ public class EMFCompareGitPGMUtil {
 	public static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
 	/**
+	 * Current Folder.
+	 */
+	public static final String CURRENT = "."; //$NON-NLS-1$
+
+	/**
+	 * Parent Folder.
+	 */
+	public static final String PARENT = ".."; //$NON-NLS-1$
+
+	/**
 	 * Displays the error message to the user and return matching {@link Returns}.
 	 * 
 	 * @param error

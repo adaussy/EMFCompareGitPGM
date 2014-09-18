@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.emf.compare.git.pgm.util;
 
-import static org.eclipse.emf.compare.git.pgm.util.StringUtil.EOL;
+import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
