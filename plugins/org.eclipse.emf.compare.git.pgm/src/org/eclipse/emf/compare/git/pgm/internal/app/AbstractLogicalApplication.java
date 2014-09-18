@@ -304,7 +304,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					IWorkspaceRoot root = workspace.getRoot();
 					for (IProject project : root.getProjects()) {
-						project.delete(true, null);
+						project.delete(false, true, monitor);
 					}
 
 					for (File file : root.getLocation().toFile().listFiles()) {
