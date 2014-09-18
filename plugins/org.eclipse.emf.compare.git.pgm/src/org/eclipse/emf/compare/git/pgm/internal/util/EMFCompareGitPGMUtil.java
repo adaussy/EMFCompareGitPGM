@@ -92,7 +92,7 @@ public class EMFCompareGitPGMUtil {
 		File file = new File(relativePath);
 		if (!file.isAbsolute()) {
 			Path base = FileSystems.getDefault().getPath(basePath);
-			Path resolvedPath = base.getParent().resolve(file.toPath());
+			Path resolvedPath = base.resolve(file.toPath());
 			Path absolutePath = resolvedPath.normalize();
 			file = absolutePath.toFile();
 		}
