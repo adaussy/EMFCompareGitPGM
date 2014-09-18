@@ -12,25 +12,13 @@ package org.eclipse.emf.compare.git.pgm.internal.app;
 
 import static org.eclipse.emf.compare.git.pgm.internal.Options.SHOW_STACK_TRACE_OPT;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EMPTY_STRING;
-import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.SEP;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.toFileWithAbsolutePath;
-import static org.eclipse.emf.compare.git.pgm.internal.util.FunctionCatalog.FILE_TO_PATH;
-import static org.eclipse.emf.compare.git.pgm.internal.util.FunctionCatalog.IPROJECT_TO_FILE;
-import static org.eclipse.emf.compare.git.pgm.internal.util.FunctionCatalog.SOURCELOCATOR_TO_FILE;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +29,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.mapping.RemoteResourceMappingContext;
 import org.eclipse.core.resources.mapping.ResourceMapping;
 import org.eclipse.core.runtime.CoreException;
@@ -85,6 +72,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.oomph.base.provider.BaseEditUtil;
 import org.eclipse.oomph.internal.setup.SetupPrompter;
+import org.eclipse.oomph.resources.ResourcesFactory;
 import org.eclipse.oomph.resources.SourceLocator;
 import org.eclipse.oomph.setup.Index;
 import org.eclipse.oomph.setup.Project;
@@ -96,6 +84,7 @@ import org.eclipse.oomph.setup.internal.core.SetupContext;
 import org.eclipse.oomph.setup.internal.core.SetupTaskPerformer;
 import org.eclipse.oomph.setup.internal.core.util.ECFURIHandlerImpl;
 import org.eclipse.oomph.setup.internal.core.util.SetupUtil;
+import org.eclipse.oomph.setup.projects.ProjectsFactory;
 import org.eclipse.oomph.setup.projects.ProjectsImportTask;
 import org.eclipse.oomph.util.Confirmer;
 import org.eclipse.oomph.util.IOUtil;
@@ -213,11 +202,18 @@ public abstract class AbstractLogicalApplication implements IApplication {
 				}
 			}
 
+			// If no ProjectsImportTask found, import all projects in repo
+			if (projectToImport.isEmpty()) {
+				ProjectsImportTask importTask = ProjectsFactory.eINSTANCE.createProjectsImportTask();
+				SourceLocator sourceLocator = ResourcesFactory.eINSTANCE.createSourceLocator(repo
+						.getWorkTree().getAbsolutePath(), false);
+				importTask.getSourceLocators().add(sourceLocator);
+				performerStartup.getTriggeredSetupTasks().add(importTask);
+			}
+
 			performerStartup.perform();
 
 			validatePerform(performerStartup);
-
-			validateImportedProjects(projectToImport);
 
 			waitEgitJobs();
 		} catch (Die e) {
@@ -230,48 +226,6 @@ public abstract class AbstractLogicalApplication implements IApplication {
 				message = "Error during Oomph operation";
 			}
 			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying(message).ready();
-		}
-	}
-
-	/**
-	 * Validates that all {@link ProjectsImportTask} from the user setup model are really in the workspace.
-	 * <p>
-	 * It prevents from perfoming egit operations if all projects are not in the workspace (prevents file by
-	 * file merge if something went wrong).
-	 * </p>
-	 * 
-	 * @param projectsToImport
-	 * @throws Die
-	 */
-	private void validateImportedProjects(List<ProjectsImportTask> projectsToImport) throws Die {
-		// Checks that all projects has been correctly imported.
-		// Oomph does not exploded if the reference of the SourceLocator point to an existing file which does
-		// not contain
-		// any project. In our case it would better to prevent any Git operation if the setup file is not
-		// completly valid.
-		Set<File> requiredProjectsFiles = new HashSet<File>();
-		for (ProjectsImportTask aImportTask : projectsToImport) {
-			requiredProjectsFiles.addAll(Collections2.transform(aImportTask.getSourceLocators(),
-					SOURCELOCATOR_TO_FILE));
-		}
-
-		List<IProject> actualProjects = Lists.newArrayList(ResourcesPlugin.getWorkspace().getRoot()
-				.getProjects());
-		Set<File> actualProjectsFile = Sets.newHashSet(Collections2.transform(actualProjects,
-				IPROJECT_TO_FILE));
-		SetView<File> missingProject = Sets.difference(requiredProjectsFiles, actualProjectsFile);
-
-		if (!missingProject.isEmpty()) {
-			StringBuilder errorMessage = new StringBuilder();
-			errorMessage
-					.append("Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
-					.append(EOL);
-			errorMessage.append(Joiner.on(EOL).join(Iterables.transform(missingProject, FILE_TO_PATH)))
-					.append(EOL);
-			errorMessage.append("Here is a list to actual project in the workspace:").append(EOL);
-			errorMessage.append(Joiner.on(EOL).join(Iterables.transform(actualProjectsFile, FILE_TO_PATH)))
-					.append(EOL);
-			throw new DiesOn(DeathType.FATAL).displaying(errorMessage.toString()).ready();
 		}
 	}
 
@@ -311,7 +265,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 						if (file.isDirectory()) {
 							// Hack waiting for a reponse on
 							// https://www.eclipse.org/forums/index.php?t=rview&goto=1415112#msg_1415112
-							if (".metadata".equals(file.getName())) {
+							if (".metadata".equals(file.getName())) { //$NON-NLS-1$
 								// Deletes the Oomph import-history.properties to force new import
 								File importHistory = new File(
 										file.getAbsolutePath()

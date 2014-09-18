@@ -37,6 +37,8 @@
       <requirement
           name="org.eclipse.oomph.projectcopy.feature.group"/>
       <requirement
+          name="org.eclipse.oomph.resources"/>
+      <requirement
           name="org.eclipse.emf.compare.feature.group"/>
       <requirement
           name="org.eclipse.emf.compare.ide.ui.feature.group"/>

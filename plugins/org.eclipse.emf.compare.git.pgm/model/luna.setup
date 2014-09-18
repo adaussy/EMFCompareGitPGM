@@ -37,6 +37,8 @@
       <requirement
           name="org.eclipse.oomph.projectcopy.feature.group"/>
       <requirement
+          name="org.eclipse.oomph.resources"/>
+      <requirement
           name="org.eclipse.emf.compare.feature.group"/>
       <requirement
           name="org.eclipse.emf.compare.ide.ui.feature.group"/>
@@ -48,7 +50,7 @@
           name="org.eclipse.emf.compare.git.pgm.feature.feature.group"/>
       <repository
           url="http://download.eclipse.org/releases/luna/201406250900"/>
-       <repository
+      <repository
           url="http://ericssonegit.ci.obeo.fr:8180/jenkins/job/egit-logical/lastSuccessfulBuild/artifact/org.eclipse.egit.repository/target/repository/"/>
       <repository
           url="http://adaussy.github.io/EMFCompareGitPGM/"/>
