@@ -176,40 +176,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 
 			cleanWorkspace();
 
-			List<ProjectsImportTask> projectToImport = new ArrayList<ProjectsImportTask>();
-
-			// Import Projects & execute other startup tasks.
-			final String resourcePath = startupSetupIndex.eResource().getURI().toFileString();
-			final String resourceBasePath = resourcePath.substring(0, resourcePath.lastIndexOf(SEP));
-			for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
-				for (Project project : projectCatalog.getProjects()) {
-					for (SetupTask setupTask : project.getSetupTasks()) {
-						if (setupTask instanceof ProjectsImportTask) {
-							// Convert location of project to absolute path.
-							EList<SourceLocator> sourceLocators = ((ProjectsImportTask)setupTask)
-									.getSourceLocators();
-							SourceLocator sourceLocator = sourceLocators.get(0);
-							String projectAbsolutePath = toFileWithAbsolutePath(resourceBasePath,
-									sourceLocator.getRootFolder()).toString();
-							ProjectsImportTask importTask = (ProjectsImportTask)EcoreUtil.copy(setupTask);
-							importTask.getSourceLocators().get(0).setRootFolder(projectAbsolutePath);
-							performerStartup.getTriggeredSetupTasks().add(importTask);
-							projectToImport.add(importTask);
-						} else {
-							performerStartup.getTriggeredSetupTasks().add(setupTask);
-						}
-					}
-				}
-			}
-
-			// If no ProjectsImportTask found, import all projects in repo
-			if (projectToImport.isEmpty()) {
-				ProjectsImportTask importTask = ProjectsFactory.eINSTANCE.createProjectsImportTask();
-				SourceLocator sourceLocator = ResourcesFactory.eINSTANCE.createSourceLocator(repo
-						.getWorkTree().getAbsolutePath(), false);
-				importTask.getSourceLocators().add(sourceLocator);
-				performerStartup.getTriggeredSetupTasks().add(importTask);
-			}
+			handleImportProjects(startupSetupIndex, performerStartup);
 
 			performerStartup.perform();
 
@@ -227,6 +194,80 @@ public abstract class AbstractLogicalApplication implements IApplication {
 			}
 			throw new DiesOn(DeathType.FATAL).duedTo(e).displaying(message).ready();
 		}
+	}
+
+	/**
+	 * Handle ProjectsImport tasks.
+	 * 
+	 * @param startupSetupIndex
+	 *            the root of the setup model.
+	 * @param performerStartup
+	 *            the SetupTaskPerformer.
+	 */
+	private void handleImportProjects(Index startupSetupIndex, SetupTaskPerformer performerStartup) {
+		List<ProjectsImportTask> projectToImport = new ArrayList<ProjectsImportTask>();
+
+		// Import Projects & execute other startup tasks.
+		final String resourcePath = startupSetupIndex.eResource().getURI().toFileString();
+		final String resourceBasePath = resourcePath.substring(0, resourcePath.lastIndexOf(SEP));
+		for (ProjectCatalog projectCatalog : startupSetupIndex.getProjectCatalogs()) {
+			for (SetupTask setupTask : projectCatalog.getSetupTasks()) {
+				if (setupTask instanceof ProjectsImportTask) {
+					// Convert locations of projects to absolute paths.
+					ProjectsImportTask importTask = createCopyWithAbsolutePath((ProjectsImportTask)setupTask,
+							resourceBasePath);
+					performerStartup.getTriggeredSetupTasks().add(importTask);
+					projectToImport.add(importTask);
+				} else {
+					performerStartup.getTriggeredSetupTasks().add(setupTask);
+				}
+			}
+			for (Project project : projectCatalog.getProjects()) {
+				for (SetupTask setupTask : project.getSetupTasks()) {
+					if (setupTask instanceof ProjectsImportTask) {
+						// Convert locations of projects to absolute paths.
+						ProjectsImportTask importTask = createCopyWithAbsolutePath(
+								(ProjectsImportTask)setupTask, resourceBasePath);
+						performerStartup.getTriggeredSetupTasks().add(importTask);
+						projectToImport.add(importTask);
+					} else {
+						performerStartup.getTriggeredSetupTasks().add(setupTask);
+					}
+				}
+			}
+		}
+
+		// If no ProjectsImportTask found, import all projects in repo
+		if (projectToImport.isEmpty()) {
+			ProjectsImportTask importTask = ProjectsFactory.eINSTANCE.createProjectsImportTask();
+			SourceLocator sourceLocator = ResourcesFactory.eINSTANCE.createSourceLocator(repo.getWorkTree()
+					.getAbsolutePath(), false);
+			importTask.getSourceLocators().add(sourceLocator);
+			performerStartup.getTriggeredSetupTasks().add(importTask);
+		}
+	}
+
+	/**
+	 * Create copy of the projects import task with all root folders of source locators convert in absolute
+	 * paths.
+	 * 
+	 * @param task
+	 *            the {@link ProjectsImportTask} to copy.
+	 * @param resourceBasePath
+	 *            the resourceBasePath needed to compute absolute paths.
+	 * @return copy of the projects import task with all root folders of source locators convert in absolute
+	 *         paths.
+	 */
+	private ProjectsImportTask createCopyWithAbsolutePath(ProjectsImportTask task,
+			final String resourceBasePath) {
+		ProjectsImportTask importTask = EcoreUtil.copy(task);
+		EList<SourceLocator> sourceLocators = importTask.getSourceLocators();
+		for (SourceLocator sourceLocator : sourceLocators) {
+			String projectAbsolutePath = toFileWithAbsolutePath(resourceBasePath,
+					sourceLocator.getRootFolder()).toString();
+			sourceLocator.setRootFolder(projectAbsolutePath);
+		}
+		return importTask;
 	}
 
 	/**
@@ -263,7 +304,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 
 					for (File file : root.getLocation().toFile().listFiles()) {
 						if (file.isDirectory()) {
-							// Hack waiting for a reponse on
+							// Hack waiting for a response on
 							// https://www.eclipse.org/forums/index.php?t=rview&goto=1415112#msg_1415112
 							if (".metadata".equals(file.getName())) { //$NON-NLS-1$
 								// Deletes the Oomph import-history.properties to force new import
@@ -295,7 +336,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	 * Forces to wait for all EGit operation to terminate.
 	 * <p>
 	 * If this is not done then it might happen that some projects are not connected yet whereas the git
-	 * command is being perfomed.
+	 * command is being performed.
 	 * </p>
 	 * 
 	 * @throws InterruptedException
@@ -312,7 +353,7 @@ public abstract class AbstractLogicalApplication implements IApplication {
 	 * {@inheritDoc}.
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		// Prevents VM args if the application exits on somehting different that 0
+		// Prevents VM args if the application exits on something different that 0
 		System.setProperty(IApplicationContext.EXIT_DATA_PROPERTY, EMPTY_STRING);
 		final Map<?, ?> args = context.getArguments();
 		final String[] appArgs = (String[])args.get("application.args"); //$NON-NLS-1$

@@ -12,10 +12,10 @@ package org.eclipse.emf.compare.git.pgm.internal.cmd;
 
 import static org.eclipse.emf.compare.git.pgm.internal.Options.SHOW_STACK_TRACE_OPT;
 import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.EOL;
-import static org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil.SEP;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,7 @@ import org.eclipse.emf.compare.git.pgm.internal.args.RefOptionHandler;
 import org.eclipse.emf.compare.git.pgm.internal.exception.Die;
 import org.eclipse.emf.compare.git.pgm.internal.exception.Die.DeathType;
 import org.eclipse.emf.compare.git.pgm.internal.exception.Die.DiesOn;
+import org.eclipse.emf.compare.git.pgm.internal.util.EMFCompareGitPGMUtil;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.oomph.setup.util.OS;
@@ -104,13 +105,18 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 			throw new DiesOn(DeathType.FATAL).duedTo(e).ready();
 		}
 
+		String setupFileAbsolutePath = this.getSetupFile().getAbsolutePath();
+		String setupFileBasePath = Paths.get(setupFileAbsolutePath).getParent().toString();
+
 		String eclipseDir = os.getEclipseDir();
 		String eclipseExecutable = os.getEclipseExecutable();
-		String eclipsePath = new File(getPerformer().getInstallationLocation(), eclipseDir + SEP
-				+ eclipseExecutable).getAbsolutePath();
+		File eclipseFile = EMFCompareGitPGMUtil
+				.toFileWithAbsolutePath(setupFileBasePath, Paths.get(
+						getPerformer().getInstallationLocation().getPath(), eclipseDir, eclipseExecutable)
+						.toString());
 
 		List<String> command = new ArrayList<String>();
-		command.add(eclipsePath);
+		command.add(eclipseFile.toString());
 		command.add("-nosplash"); //$NON-NLS-1$
 		command.add("--launcher.suppressErrors"); //$NON-NLS-1$
 		command.add("-application"); //$NON-NLS-1$
@@ -123,7 +129,7 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 
 		command.add(getRepository().getDirectory().getAbsolutePath());
 
-		command.add(this.getSetupFile().getAbsolutePath());
+		command.add(setupFileAbsolutePath);
 
 		if (commit != null) {
 			command.add(commit.name());
