@@ -51,6 +51,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -150,7 +151,7 @@ public abstract class AbstractApplicationTest {
 
 		File tmpFolder = testTmpFolder.toFile();
 		if (tmpFolder.exists()) {
-			// FileUtils.delete(tmpFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+			FileUtils.delete(tmpFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 
 		System.setOut(sysout);

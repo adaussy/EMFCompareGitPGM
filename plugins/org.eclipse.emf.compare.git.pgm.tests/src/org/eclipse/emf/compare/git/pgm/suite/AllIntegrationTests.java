@@ -79,7 +79,9 @@ public class AllIntegrationTests {
 
 	@AfterClass
 	public static void deleteProvidedPlatform() throws IOException {
-		FileUtils.delete(providedEclipsePlatformPath.toFile(), FileUtils.RECURSIVE | FileUtils.RETRY);
+		if (providedEclipsePlatformPath != null) {
+			FileUtils.delete(providedEclipsePlatformPath.toFile(), FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
 	}
 
 	/**
