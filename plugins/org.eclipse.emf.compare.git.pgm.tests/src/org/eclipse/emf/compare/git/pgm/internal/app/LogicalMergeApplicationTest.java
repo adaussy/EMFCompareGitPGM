@@ -714,61 +714,6 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 	}
 
 	/**
-	 * <h3>Test with a setup file that references an empty folder.</h3>
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testIncorrectProjectToImport_NotAProject() throws Exception {
-		Path existinProjectPath = getRepositoryPath().resolve("MER003");
-		File existingProject = new ProjectBuilder(this) //
-				.addContentToCopy("data/automerging/MER003/branch_a/model.di")//
-				.addContentToCopy("data/automerging/MER003/branch_a/model.uml") //
-				.addContentToCopy("data/automerging/MER003/branch_a/model.notation") //
-				.create(existinProjectPath);
-		String branchA = "branch_a";
-		addAllAndCommit("Initial commit [PapyrusProject3]");
-		createBranch(branchA, "master");
-
-		File notAProject = getRepositoryPath().resolve("Empty folder").toFile();
-		notAProject.mkdirs();
-
-		getGit().close();
-
-		// Creates Oomph model
-		File userSetupFile = createPapyrusUserOomphModel(existingProject, notAProject);
-
-		// Mocks that the commands is lauched from the git repository folder.
-		setCmdLocation(getRepositoryPath().toString());
-
-		// Sets args
-		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
-				branchA);
-
-		// Runs command
-		Object result = getApp().start(getContext());
-
-		// Uncomments to displays output
-		printOut();
-		printErr();
-
-		IProject[] projectInWorkspace = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		assertEquals(1, projectInWorkspace.length);
-		StringBuilder expectedOut = new StringBuilder();
-		expectedOut
-				.append("fatal: Could not import all required projects in the workspace. Here is a list projects that were no imported in the workspace:")
-				.append(EOL);
-		expectedOut.append(notAProject.getAbsolutePath()).append(EOL);
-		expectedOut.append("Here is a list to actual project in the workspace:").append(EOL);
-		expectedOut.append(existingProject.getAbsolutePath()).append(EOL);
-		expectedOut.append(EOL);
-
-		assertOutputMessageEnd(expectedOut.toString());
-		assertEquals(Returns.ERROR.code(), result);
-
-	}
-
-	/**
 	 * <h3>Test the use case MER003</h3>
 	 * <p>
 	 * This use case aims to test a logical merge on a model with no conflict (Auto merging should succeed).
