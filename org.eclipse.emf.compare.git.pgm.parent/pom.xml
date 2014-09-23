@@ -12,10 +12,6 @@
 		<tycho-version>0.21.0</tycho-version>
 		<tycho-extras-version>0.21.0</tycho-extras-version>
 		<maven-surefire-version>2.17</maven-surefire-version>
-<!-- 		<jdtVersion>3.10.0.v20140604-1726</jdtVersion> -->
-<!-- 		<jdtVersionMaven>${jdtVersion}</jdtVersionMaven> -->
-<!-- 		<jdtAptVersion>1.1.0.v20140509-1235</jdtAptVersion> -->
-<!-- 		<jdtAptVersionMaven>${jdtAptVersion}</jdtAptVersionMaven> -->
 	</properties>
 	<modules>
 		<module>../plugins/org.eclipse.emf.compare.git.pgm</module>

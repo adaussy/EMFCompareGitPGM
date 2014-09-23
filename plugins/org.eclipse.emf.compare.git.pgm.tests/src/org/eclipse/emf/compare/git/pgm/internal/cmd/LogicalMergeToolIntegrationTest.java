@@ -28,7 +28,12 @@ import org.eclipse.equinox.app.IApplication;
 import org.junit.Test;
 
 /**
- * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * Should only be called from the tycho build since it used the emfcompare-git-pgm update to create the
+ * provided platform.
+ * <p>
+ * If you need to run it locally please set the system variable "emfcompare-git-pgm--updasite" to the location
+ * of update holding emfcompare-git-pgm plugins.
+ * </p>
  * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
@@ -61,6 +66,10 @@ public class LogicalMergeToolIntegrationTest extends AbstractLogicalAppTest {
 		// Tests referencing a commit using the name of a branch
 		getContext().addArg(LOGICAL_MERGE_TOOL_CMD_NAME, newSetupFile.getAbsolutePath());
 		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
 		String expectedOut = "fatal: No conflict to merge" + EOL; //
 		assertOutputMessageEnd(expectedOut);
 		assertEmptyErrorMessage();

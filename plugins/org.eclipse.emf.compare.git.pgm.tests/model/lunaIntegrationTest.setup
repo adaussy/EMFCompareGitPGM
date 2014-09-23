@@ -51,7 +51,7 @@
        <repository
           url="http://ericssonegit.ci.obeo.fr:8180/jenkins/job/egit-logical/lastSuccessfulBuild/artifact/org.eclipse.egit.repository/target/repository/"/>
       <repository
-          url="file:/home/adaussy/Work/GitClones/EMFCompareGitPGMBuilds/packaging/org.eclipse.emf.compare.git.pgm.update/target/repository/"/>
+          url="${emfcompare-git-pgm--updasite}"/>
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
       <repository

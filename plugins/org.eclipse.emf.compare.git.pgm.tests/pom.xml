@@ -26,7 +26,7 @@
 					<executionEnvironment>JavaSE-1.8</executionEnvironment>
 					<dependency-resolution>
 						<!-- The test suite AllApplicationTest needs a provisioned platform 
-							with the following components. This is the way to force those components 
+							with the following components. Below is new way to force those components 
 							to be installed in the runtime test platform since tycho 0.21.0. For more 
 							information see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=436617#c11, 
 							https://bugs.eclipse.org/bugs/show_bug.cgi?id=438559, http://comments.gmane.org/gmane.comp.ide.eclipse.tycho.user/4154 -->
@@ -61,6 +61,62 @@
 								<id>org.eclipse.egit</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.core.net</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.equinox.ds</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.eclipse.equinox.p2.core.feature</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.equinox.ds</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.util</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.base.edit</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.setup</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.setup.core</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.setup.projects</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.oomph.setup.p2</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>p2-installable-unit</type>
+								<id>org.eclipse.platform.sdk</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+
 						</extraRequirements>
 					</dependency-resolution>
 				</configuration>
@@ -74,12 +130,16 @@
 					<useUIHarness>false</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<includes>
+						<include>org/eclipse/emf/compare/git/pgm/suite/AllIntegrationTests.java</include>
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllCommandLineArguementTests.java</include>
-						<!-- Not included since the lunaIntegrationTest.setup reference a local update site -->
-						<!-- <include>org/eclipse/emf/compare/git/pgm/suite/AllIntegrationTests</include> -->
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllLogicalApplicationTests.java</include>
 						<include>org/eclipse/emf/compare/git/pgm/suite/AllUtilTests.java</include>
 					</includes>
+					<systemProperties>
+						<!-- Point to the location to the newly created update. This property 
+							is need for the model/lunaIntegrationTest.setup -->
+						<emfcompare-git-pgm--updasite>${project.baseUri}../../packaging/org.eclipse.emf.compare.git.pgm.update/target/repository/</emfcompare-git-pgm--updasite>
+					</systemProperties>
 
 				</configuration>
 			</plugin>

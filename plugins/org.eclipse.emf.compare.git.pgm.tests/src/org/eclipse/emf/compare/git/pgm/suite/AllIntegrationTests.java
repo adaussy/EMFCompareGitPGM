@@ -30,12 +30,24 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
+ * Should only be called from the tycho build since it used the emfcompare-git-pgm update to create the
+ * provided platform.
+ * <p>
+ * If you need to run it locally please set the system variable "emfcompare-git-pgm--updasite" to the location
+ * of update holding emfcompare-git-pgm plugins.
+ * </p>
+ * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
 @RunWith(Suite.class)
 @SuiteClasses({LogicalMergeCommandIntegrationTest.class, LogicalMergeToolIntegrationTest.class,
 		LogicalDiffIntegrationTest.class })
 public class AllIntegrationTests {
+
+	/**
+	 * System property to set to the emfcompare-git-pgm update site location.
+	 */
+	private static final String EMFCOMPARE_GIT_PGM_UPDASITE_SYS_PROP = "emfcompare-git-pgm--updasite"; //$NON-NLS-1$
 
 	private static final String TMP_DIRECTORY_PREFIX = "emfcompare-git-pgm"; //$NON-NLS-1$
 
@@ -58,6 +70,11 @@ public class AllIntegrationTests {
 	public static void provideLocationForProvidedPlatform() throws IOException {
 		providedEclipsePlatformPath = Files.createTempDirectory(TMP_DIRECTORY_PREFIX
 				+ "_providedEclipsePlatform", new FileAttribute<?>[] {}); //$NON-NLS-1$
+		String updateSiteLocation = System.getProperty(EMFCOMPARE_GIT_PGM_UPDASITE_SYS_PROP);
+		if (updateSiteLocation == null) {
+			throw new AssertionError("The variable " + EMFCOMPARE_GIT_PGM_UPDASITE_SYS_PROP
+					+ " should be defined in the system properties in order to run this test suite.");
+		}
 	}
 
 	@AfterClass
@@ -68,15 +85,15 @@ public class AllIntegrationTests {
 	/**
 	 * A unique location where test can share a provided platform.
 	 * <p>
-	 * All integration tests that do not specifically want to test the providing mechanism can use this
-	 * shared location for their provided platform. Using this location will assure that the platform is
-	 * provided only once.
+	 * All integration tests that do not specifically want to test the providing mechanism can use this shared
+	 * location for their provided platform. Using this location will assure that the platform is provided
+	 * only once.
 	 * </p>
 	 * 
 	 * @return
 	 */
 	public static Path getProvidedPlatformLocation() {
-		if(providedEclipsePlatformPath == null){
+		if (providedEclipsePlatformPath == null) {
 			throw new AssertionError("The integration tests needs to be launched using this suite.");
 		}
 		return providedEclipsePlatformPath;

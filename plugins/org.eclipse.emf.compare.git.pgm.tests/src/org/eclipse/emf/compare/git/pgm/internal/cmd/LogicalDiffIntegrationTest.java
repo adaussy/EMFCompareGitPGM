@@ -27,7 +27,12 @@ import org.eclipse.equinox.app.IApplication;
 import org.junit.Test;
 
 /**
- * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * Should only be called from the tycho build since it used the emfcompare-git-pgm update to create the
+ * provided platform.
+ * <p>
+ * If you need to run it locally please set the system variable "emfcompare-git-pgm--updasite" to the location
+ * of update holding emfcompare-git-pgm plugins.
+ * </p>
  * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
@@ -61,6 +66,10 @@ public class LogicalDiffIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg(LogicalDiffCommand.LOGICAL_DIFF_CMD_NAME, newSetupFile.getAbsolutePath(),
 				"master", "master");
 		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
 		assertOutputMessageEnd("No difference to display." + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);

@@ -32,7 +32,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 /**
- * Should only be called from the tycho build since it used the built update to create the provided platform.
+ * Should only be called from the tycho build since it used the emfcompare-git-pgm update to create the
+ * provided platform.
+ * <p>
+ * If you need to run it locally please set the system variable "emfcompare-git-pgm--updasite" to the location
+ * of update holding emfcompare-git-pgm plugins.
+ * </p>
  * 
  * @author <a href="mailto:arthur.daussy@obeo.fr">Arthur Daussy</a>
  */
@@ -64,6 +69,10 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		// Tests referencing a commit using the name of a branch
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, newSetupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
 		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
@@ -116,6 +125,10 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, Options.GIT_DIR_OPT, getGitFolderPath().toString(),
 				setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
 		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
@@ -142,6 +155,10 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 
 		getContext().addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), "master");
 		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
 		assertOutputMessageEnd("Already up to date." + EOL + EOL);
 		assertEmptyErrorMessage();
 		assertEquals(Returns.COMPLETE.code(), result);
