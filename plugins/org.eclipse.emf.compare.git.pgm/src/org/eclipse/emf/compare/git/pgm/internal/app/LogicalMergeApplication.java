@@ -86,8 +86,10 @@ public class LogicalMergeApplication extends AbstractLogicalApplication {
 
 		try {
 			MergeOperation merge = new MergeOperation(repo, commit.getName());
+			if (message != null) {
+				merge.setMessage(message);
+			}
 			merge.execute(new NullProgressMonitor());
-
 			MergeResult result = merge.getResult();
 			Ref oldHead = repo.getRef(Constants.HEAD);
 

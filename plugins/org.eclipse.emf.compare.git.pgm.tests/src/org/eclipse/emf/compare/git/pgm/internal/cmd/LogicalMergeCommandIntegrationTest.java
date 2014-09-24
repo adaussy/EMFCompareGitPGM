@@ -167,4 +167,36 @@ public class LogicalMergeCommandIntegrationTest extends AbstractLogicalAppTest {
 		assertNotNull(mergeCmd.getCommit());
 	}
 
+	@Test
+	public void alreadyUpToDateWithMessageTest() throws Exception {
+		// Creates some content for the first commit.
+		File project = new ProjectBuilder(this) //
+				.addNewFileContent("newFoler/newFile.txt", "some content") //
+				.create(getRepositoryPath().resolve("EmptyProject"));
+		addAllAndCommit("First commit");
+		// Launches command from subfolder of the git repository
+		setCmdLocation(project.toPath().resolve("newFolder").toString());
+
+		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
+		File setupFile = new OomphUserModelBuilder() //
+				.setInstallationTaskLocation(AllIntegrationTests.getProvidedPlatformLocation().toString()) //
+				.setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
+				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
+
+		getContext()
+				.addArg(LOGICAL_MERGE_CMD_NAME, setupFile.getAbsolutePath(), "master", "-m", "My message");
+		Object result = getApp().start(getContext());
+
+		printOut();
+		printErr();
+
+		assertOutputMessageEnd("Already up to date." + EOL + EOL);
+		assertEmptyErrorMessage();
+		assertEquals(Returns.COMPLETE.code(), result);
+		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
+		LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
+		assertNotNull(mergeCmd.getCommit());
+		assertEquals("My message", mergeCmd.getMessage());
+
+	}
 }

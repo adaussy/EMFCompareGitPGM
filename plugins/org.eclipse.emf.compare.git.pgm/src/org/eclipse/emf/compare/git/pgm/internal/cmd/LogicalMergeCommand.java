@@ -137,6 +137,11 @@ public class LogicalMergeCommand extends AbstractLogicalCommand {
 			command.add("HEAD"); //$NON-NLS-1$
 		}
 
+		if (message != null) {
+			command.add("-m"); //$NON-NLS-1$
+			command.add(message);
+		}
+
 		if (getPerformer().getWorkspaceLocation() != null) {
 			command.add("-data"); //$NON-NLS-1$
 			command.add(getPerformer().getWorkspaceLocation().toString());

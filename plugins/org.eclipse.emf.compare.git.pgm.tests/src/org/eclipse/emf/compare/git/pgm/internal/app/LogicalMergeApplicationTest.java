@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -770,17 +771,15 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 
 		addAllAndCommit("Adds class 1");
 
-		getGit().close();
-
 		// Creates Oomph model
 		File userSetupFile = createPapyrusUserOomphModel(project);
 
-		// Mocks that the commands is lauched from the git repository folder.
+		// Mocks that the commands is launched from the git repository folder.
 		setCmdLocation(getRepositoryPath().toString());
 
 		// Sets args
 		getContext().addArg(getRepositoryPath().resolve(".git").toString(), userSetupFile.getAbsolutePath(),
-				branchC);
+				branchC, "-m", "My message");
 
 		// Runs command
 		Object result = getApp().start(getContext());
@@ -803,6 +802,10 @@ public class LogicalMergeApplicationTest extends AbstractApplicationTest {
 		final String class1ShapeURIFragment = "_bB3tgC3HEeSN_5D5iyrZGQ";
 		assertExistInResource(project.toPath().resolve("model.notation"), class1ShapeURIFragment,
 				class2ShapeURIFragment);
+
+		Iterator<RevCommit> it = getGit().log().call().iterator();
+		RevCommit newHead = it.next();
+		assertEquals("My message", newHead.getFullMessage());
 
 	}
 

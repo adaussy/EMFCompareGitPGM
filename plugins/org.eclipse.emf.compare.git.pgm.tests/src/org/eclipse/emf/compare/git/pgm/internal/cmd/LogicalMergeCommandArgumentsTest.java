@@ -245,28 +245,28 @@ public class LogicalMergeCommandArgumentsTest extends AbstractLogicalCommandTest
 		assertEmptyErrorMessage();
 	}
 
-	// @Test
-	// public void messageTest() throws Exception {
-	// setCmdLocation(getRepositoryPath().toString());
-	//
-	// Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
-	// File newSetupFile = new OomphUserModelBuilder() //
-	// .setInstallationTaskLocation(oomphFolderPath.toString()) //
-	// .setWorkspaceLocation(oomphFolderPath.resolve("ws").toString()) //
-	// .saveTo(getTestTmpFolder().resolve("setup.setup").toString());
-	//
-	// // Creates some content for the first commit.
-	// new ProjectBuilder(this) //
-	// .create(getRepositoryPath().resolve("EmptyProject"));
-	// addAllAndCommit("First commit");
-	//
-	// // Tests referencing a commit using the name of a branch
-	// getContext().addArg(getCommandName(), newSetupFile.getAbsolutePath(), "master", "-m", "My message");
-	// getApp().start(getContext());
-	// assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
-	// LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
-	// assertNotNull(mergeCmd.getCommit());
-	// assertEquals("My message", ((LogicalMergeCommand)getLogicalCommand()).getMessage());
-	//
-	// }
+	@Test
+	public void messageTest() throws Exception {
+		setCmdLocation(getRepositoryPath().toString());
+
+		Path oomphFolderPath = getTestTmpFolder().resolve("oomphFolder");
+		File newSetupFile = new OomphUserModelBuilder().setInstallationTaskLocation(
+				oomphFolderPath.toString()).setWorkspaceLocation(oomphFolderPath.resolve("ws").toString())
+				.saveTo(getTestTmpFolder().resolve("setup.setup").toString());
+
+		// Creates some content for the first commit.
+		new ProjectBuilder(this) //
+				.create(getRepositoryPath().resolve("EmptyProject"));
+		addAllAndCommit("First commit");
+
+		// Tests referencing a commit using the name of a branch
+		getContext().addArg(getCommandName(), newSetupFile.getAbsolutePath(), "master", "-m", "My message",
+				"--help");
+		getApp().start(getContext());
+		assertTrue(getLogicalCommand() instanceof LogicalMergeCommand);
+		LogicalMergeCommand mergeCmd = (LogicalMergeCommand)getLogicalCommand();
+		assertNotNull(mergeCmd.getCommit());
+		assertEquals("My message", ((LogicalMergeCommand)getLogicalCommand()).getMessage());
+
+	}
 }
